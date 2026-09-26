@@ -1,13 +1,13 @@
 // Hora do Sol — service worker: funciona offline depois da primeira abertura
-const CACHE = 'hora-do-sol-v2';
-const ASSETS = ['./', './index.html', './manifest.webmanifest',
+const CACHE = 'hora-do-sol-v02-20260926-r3';
+const ASSETS = ['./', './index.html', './v02.css?v=3', './manifest.webmanifest',
   './icon-192.png', './icon-512.png', './maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('hora-do-sol-') && k !== CACHE).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', e => {
@@ -20,3 +20,4 @@ self.addEventListener('fetch', e => {
     }).catch(() => e.request.mode === 'navigate' ? caches.match('./index.html') : undefined))
   );
 });
+

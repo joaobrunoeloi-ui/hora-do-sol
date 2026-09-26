@@ -107,78 +107,25 @@ h2{font-family:var(--serif);font-weight:500;font-size:24px;margin:0 0 4px;line-h
 footer{padding:10px 24px 36px;font-size:13px;color:var(--ink-soft);line-height:1.5}
 :focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
-</style>
+</style><link rel="stylesheet" href="v02.css?v=3">
 </head>
 <body>
 <main class="app" id="app" data-sky="day">
-  <svg class="stars" id="stars" aria-hidden="true" viewBox="0 0 460 520" preserveAspectRatio="xMidYMin slice"></svg>
-
-  <header>
-    <div class="loc-wrap">
-      <select class="loc" id="loc" aria-label="Localização"></select>
-    </div>
-    <div class="date" id="date"></div>
-    <div class="note" id="note" hidden></div>
-  </header>
-
-  <div class="dial-wrap"><svg class="dial" id="dial" viewBox="0 0 320 320" role="img" aria-label="Relógio de sol"></svg></div>
-
-  <div class="readouts" aria-live="off">
-    <div><div class="ro-label">Hora legal</div><div class="ro-time" id="legal">--:--:--</div></div>
-    <div><div class="ro-label">Hora solar verdadeira</div><div class="ro-time solar" id="solar">--:--:--</div></div>
-    <p class="sentence" id="sentence"></p>
-  </div>
-
-  <div class="explore">
-    <div class="explore-top">
-      <div class="status" id="status"><span class="dot"></span><span id="statusText">Ao vivo</span></div>
-      <input type="date" id="dateInput" aria-label="Escolher data">
-      <button class="btn" id="nowBtn" hidden>Voltar a agora</button>
-    </div>
-    <input type="range" id="slider" min="0" max="1439" step="1" aria-label="Hora do dia">
-    <div class="range-scale"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span></div>
-  </div>
-
-  <section class="panel">
-    <h2>Porquê esta diferença?</h2>
-    <p class="lede">A hora legal segue o fuso; a hora solar segue o Sol no céu deste lugar.</p>
-    <div class="rows" id="explain"></div>
-  </section>
-
-  <section class="panel">
-    <h2>O Sol hoje</h2>
-    <svg class="chart" id="curve" viewBox="0 0 340 170" role="img" aria-label="Altura do Sol e da Lua ao longo do dia"></svg>
-    <div class="legend">
-      <span><i style="background:#F7F2E2"></i>Dia</span>
-      <span><i style="background:#E9B38A"></i>Crepúsculo civil</span>
-      <span><i style="background:#6E78B4"></i>Náutico</span>
-      <span><i style="background:#39447A"></i>Astronómico</span>
-      <span><i style="background:#141C3A"></i>Noite</span>
-    </div>
-    <div class="stats" id="stats"></div>
-  </section>
-
-  <section class="panel">
-    <h2>Momentos de luz</h2>
-    <div class="rows" id="sunRows"></div>
-  </section>
-
-  <section class="panel">
-    <h2>A Lua</h2>
-    <div class="moon-head">
-      <svg id="moonSvg" viewBox="0 0 110 110" role="img" aria-label="Fase da Lua"></svg>
-      <div><div class="moon-name" id="moonName"></div><div class="moon-sub" id="moonSub"></div></div>
-    </div>
-    <div class="rows" id="moonRows"></div>
-  </section>
-
-  <section class="panel">
-    <h2>Equação do tempo</h2>
-    <p class="lede" id="eotLede"></p>
-    <svg class="chart" id="eot" viewBox="0 0 340 140" role="img" aria-label="Equação do tempo ao longo do ano"></svg>
-  </section>
-
-  <footer>Versão 0.1. Tudo é calculado no próprio dispositivo, sem internet, com os algoritmos da NOAA (Sol) e de Jean Meeus (Lua). Precisão típica de 1 a 2 minutos.</footer>
+<svg id="stars" hidden></svg>
+<header class="masthead"><a href="#" class="brand"><span class="brand-sun">☼</span> HORA DO SOL <small>0.2</small></a><span class="tagline">O tempo, pela natureza.</span></header>
+<div class="location-bar"><div><label class="eyebrow" for="loc">O SOL EM</label><div class="loc-wrap"><select class="loc" id="loc" aria-label="Localização"></select></div></div><div><div class="date" id="date"></div><div id="zone" class="muted"></div></div><div class="note" id="note" role="status" hidden></div></div>
+<div class="hero-grid">
+<section class="hero" aria-label="Relógio solar"><div class="eyebrow"><span class="tiny-sun">✳</span> HORA SOLAR VERDADEIRA</div><div class="solar-clock" id="solar">--:--:--</div><div class="civil"><span id="legal">--:--:--</span><span>hora legal</span></div><p class="sentence" id="sentence"></p><div class="noon-callout"><span>☀</span><div>O meio-dia do Sol é às <strong id="noonTime">--:--</strong><small>Hora legal · quando o Sol cruza o meridiano local</small></div></div></section>
+<section class="sun-panel" aria-labelledby="dayTitle"><div class="section-top"><h1 id="dayTitle">O ritmo do dia</h1><span id="sunState" class="pill"></span></div><p class="muted">Do primeiro raio à última luz.</p><svg class="sun-arc" id="sunArc" viewBox="0 0 600 280" role="img" aria-label="Percurso do Sol ao longo do dia, em hora legal"></svg><div class="events"><div><span>↗ Nascer do Sol</span><b id="riseTime"></b></div><div class="event-noon"><span>☀ Meio-dia solar</span><b id="arcNoon"></b></div><div><span>↘ Pôr do Sol</span><b id="setTime"></b></div></div><p class="arc-note" id="arcNote"></p></section>
+</div>
+<section class="explore" aria-label="Explorar data e hora"><div class="explore-top"><div><div class="eyebrow">EXPLORAR O TEMPO</div><div class="status" id="status"><span class="dot"></span><span id="statusText">Ao vivo</span></div></div><div class="inputs"><label>Data<input type="date" id="dateInput" min="1900-01-01" max="2100-12-31" aria-label="Escolher data"></label><label>Hora legal<input type="time" id="timeInput" aria-label="Escolher hora legal"></label><button class="btn" id="nowBtn">↺ Agora</button></div></div><input type="range" id="slider" min="0" max="1439" step="1" aria-label="Hora do dia"><div class="range-scale"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div><p id="timeNote" role="status" class="muted"></p></section>
+<div class="stats" id="stats"></div>
+<div class="secondary"><div class="secondary-title"><h2>Um pouco mais de céu</h2><span class="muted">Para quem quer olhar mais longe.</span></div>
+<details class="panel"><summary>Porque não coincidem os relógios?<span>Fuso, longitude e órbita</span></summary><div class="detail-body"><p class="lede">A hora legal segue o fuso; a hora solar segue o Sol no céu deste lugar.</p><div class="rows" id="explain"></div><h2>Equação do tempo</h2><p class="lede" id="eotLede"></p><svg class="chart" id="eot" viewBox="0 0 340 140" role="img" aria-label="Equação do tempo ao longo do ano"></svg></div></details>
+<details class="panel"><summary>Momentos de luz<span>Crepúsculos e posição solar</span></summary><div class="detail-body"><div class="rows" id="sunRows"></div></div></details>
+<details class="panel"><summary>A Lua<span>Fase, posição e próximos encontros</span></summary><div class="detail-body"><div class="moon-head"><svg id="moonSvg" viewBox="0 0 110 110" role="img" aria-label="Fase da Lua"></svg><div><div class="moon-name" id="moonName"></div><div class="moon-sub" id="moonSub"></div></div></div><div class="rows" id="moonRows"></div></div></details>
+<details class="panel"><summary>O relógio de sol<span>Uma leitura pela sombra</span></summary><div class="detail-body"><p class="lede">A sombra indica a hora solar quando o Sol está acima do horizonte. Representação de um mostrador horizontal orientado para o norte.</p><div class="dial-wrap"><svg class="dial" id="dial" viewBox="0 0 320 320" role="img" aria-label="Relógio de sol"></svg></div></div></details></div>
+<footer><span>☼ HORA DO SOL · 0.2</span><p>Cálculos no teu dispositivo · NOAA (Sol) e Jean Meeus (Lua). Estimativas astronómicas; o horizonte e a atmosfera podem alterar os instantes observados.</p></footer>
 </main>
 
 <script id="astro">
@@ -329,6 +276,9 @@ const LOCS = [
   {id:'braganca', name:'Bragança', lat:41.8061, lon:-6.7567, tz:'Europe/Lisbon'},
   {id:'faro', name:'Faro', lat:37.0194, lon:-7.9322, tz:'Europe/Lisbon'},
   {id:'funchal', name:'Funchal', lat:32.6669, lon:-16.9241, tz:'Atlantic/Madeira'},
+  {id:'newyork', name:'Nova Iorque', lat:40.7128, lon:-74.006, tz:'America/New_York'},
+  {id:'tokyo', name:'Tóquio', lat:35.6762, lon:139.6503, tz:'Asia/Tokyo'},
+  {id:'tromso', name:'Tromsø', lat:69.6492, lon:18.9553, tz:'Europe/Oslo'},
   {id:'pdelgada', name:'Ponta Delgada', lat:37.7412, lon:-25.6756, tz:'Atlantic/Azores'}
 ];
 const $ = id => document.getElementById(id);
@@ -496,7 +446,7 @@ function render(){
   let sentence;
   if (Math.abs(total) < 1) sentence = 'Neste momento, o relógio e o Sol estão praticamente certos um com o outro.';
   else sentence = `O relógio vai ${durMin(total)} ${total > 0 ? 'adiantado' : 'atrasado'} em relação ao Sol.`;
-  if (!up) sentence += ' O Sol está abaixo do horizonte, por isso o relógio de sol não projeta sombra.';
+
   $('sentence').textContent = sentence;
   $('explain').innerHTML =
     row(`Fuso horário<small>${utcLabel}${summer ? ', hora de verão' : ''}</small>`, `${signed(off,0)} min`) +
@@ -507,50 +457,34 @@ function render(){
   // Estado de exploração
   $('status').classList.toggle('paused', !live);
   $('statusText').textContent = live ? 'Ao vivo' : 'A explorar';
-  $('nowBtn').hidden = live;
+  $('nowBtn').hidden = false;
+  $('zone').textContent = loc.tz.replaceAll('_',' ') + ' · ' + utcLabel;
+  if (document.activeElement !== $('timeInput')) $('timeInput').value = pad(p.h)+':'+pad(p.mi);
+
   const di = $('dateInput');
   if (document.activeElement !== di) di.value = `${p.y}-${pad(p.m)}-${pad(p.d)}`;
   const sl = $('slider');
   if (document.activeElement !== sl || live) sl.value = p.h*60 + p.mi;
 
-  renderCurve(sp);
+  renderArc(sp);
   renderStats();
   renderSunRows(sp);
   renderMoon();
   renderEot(sp, p.y);
 }
 
-function renderCurve(sp){
-  const W = 340, top = 8, h0y = 92, bottom = 150, span = day.end - day.start;
-  const x = t => ((t - day.start)/span)*W;
-  const y = a => Math.max(top, Math.min(bottom, h0y - a*1.0));
-  let bands = '', cur = null, bx = 0;
-  day.samples.forEach((s, i) => {
-    const c = bandColor(s.sun);
-    if (c !== cur){ if (cur) bands += `<rect x="${bx.toFixed(1)}" y="${top}" width="${(x(s.t)-bx+.6).toFixed(1)}" height="${bottom-top}" fill="${cur}"/>`; cur = c; bx = x(s.t); }
-    if (i === day.samples.length-1) bands += `<rect x="${bx.toFixed(1)}" y="${top}" width="${(W-bx).toFixed(1)}" height="${bottom-top}" fill="${cur}"/>`;
-  });
-  const sunPath = day.samples.map((s,i) => `${i?'L':'M'}${x(s.t).toFixed(1)},${y(s.sun).toFixed(1)}`).join('');
-  const moonPath = day.samples.map((s,i) => `${i?'L':'M'}${x(s.t).toFixed(1)},${y(s.moon).toFixed(1)}`).join('');
-  const inDay = viewMs >= day.start && viewMs < day.end;
-  const nx = x(viewMs), mp = moonPos(viewMs, loc.lat, loc.lon);
-  let ticks = '';
-  for (let h = 0; h <= 24; h += 6){
-    const tx = Math.min(W-8, Math.max(8, x(day.start + h*3600000)));
-    ticks += `<text x="${tx.toFixed(1)}" y="166" text-anchor="middle" font-size="11" fill="currentColor" opacity=".7">${h}h</text>`;
-  }
-  $('curve').innerHTML = `
-    <defs><clipPath id="cc"><rect x="0" y="${top}" width="${W}" height="${bottom-top}" rx="12"/></clipPath></defs>
-    <g clip-path="url(#cc)">${bands}
-      <line x1="0" x2="${W}" y1="${h0y}" y2="${h0y}" stroke="#12223A" stroke-opacity=".45" stroke-width="1" stroke-dasharray="2 3"/>
-      <path d="${moonPath}" fill="none" stroke="#8C93AE" stroke-width="1.6" stroke-dasharray="4 3"/>
-      <path d="${sunPath}" fill="none" stroke="#B0781C" stroke-width="2.4" stroke-linejoin="round"/>
-      ${inDay ? `<line x1="${nx.toFixed(1)}" x2="${nx.toFixed(1)}" y1="${top}" y2="${bottom}" stroke="#12223A" stroke-opacity=".55" stroke-width="1"/>
-      <circle cx="${nx.toFixed(1)}" cy="${y(mp.alt).toFixed(1)}" r="4.5" fill="#E9E6F2" stroke="#5E6685" stroke-width="1"/>
-      <circle cx="${nx.toFixed(1)}" cy="${y(sp.alt).toFixed(1)}" r="6.5" fill="#F4C451" stroke="#8A5A0E" stroke-width="1.4"/>` : ''}
-    </g>
-    <text x="6" y="${h0y-5}" font-size="10" fill="#12223A" opacity=".7">horizonte</text>
-    ${ticks}`;
+function renderArc(sp){
+  const x = t => 30 + (t-day.start)/(day.end-day.start)*540;
+  const y = alt => 160-alt*1.35;
+  const path = day.samples.map((p,i)=>(i?'L':'M')+x(p.t).toFixed(2)+','+y(p.sun).toFixed(2)).join(' ');
+  const cx=x(viewMs), cy=y(sp.alt);
+  let ticks='';
+  for(let t=day.start;t<=day.end;t+=3600000){const p=localParts(loc.tz,t);if(p.h%6===0) ticks += '<text x="'+x(t)+'" y="268" text-anchor="middle">'+pad(p.h)+':00</text>';}
+  $('sunArc').innerHTML='<defs><linearGradient id="arcFill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#db9c42" stop-opacity=".24"/><stop offset="1" stop-color="#db9c42" stop-opacity="0"/></linearGradient><clipPath id="dayClip"><rect x="0" y="0" width="600" height="160"/></clipPath></defs><path d="'+path+' L570,250 L30,250Z" fill="url(#arcFill)" clip-path="url(#dayClip)"/><line x1="30" x2="570" y1="160" y2="160" class="horizon"/><text x="30" y="151">HORIZONTE</text><path d="'+path+'" fill="none" stroke="#ba8434" stroke-width="2.5"/><line x1="'+cx+'" x2="'+cx+'" y1="25" y2="250" class="cursor"/><circle cx="'+cx+'" cy="'+cy+'" r="17" fill="#e9b65c" opacity=".15"/><circle cx="'+cx+'" cy="'+cy+'" r="7" fill="#e9b65c" stroke="#f9dfad" stroke-width="2"/>'+ticks;
+  $('noonTime').textContent=$('arcNoon').textContent=hm(day.noon,loc.tz);
+  $('riseTime').textContent=hm(day.rise,loc.tz); $('setTime').textContent=hm(day.set,loc.tz);
+  $('sunState').textContent=sp.alt>=-0.833?'Acima do horizonte':'Abaixo do horizonte';
+  $('arcNote').textContent=day.dayLen===0?'O Sol não nasce nesta data.':day.rise===null&&day.set===null?'O Sol não se põe nesta data.':'Hora legal · a linha vertical assinala o instante escolhido';
 }
 
 function renderStats(){
@@ -599,7 +533,7 @@ function renderSunRows(sp){
   add(e[-18].dn, 'Fim do crepúsculo astronómico');
   items.forEach(i => { if (i.time < t && !i.cls.includes('now')) i.cls += ' past'; });
   if (t >= day.start && t < day.end){
-    items.push({time: t, label: `Agora<small>Sol a ${nf0.format(sp.alt)}° de altura, azimute ${nf0.format(sp.az)}° (${compass(sp.az)})</small>`, value: hm(t, tz), cls: 'now'});
+    items.push({time: t, label: `${live ? 'Agora' : 'Instante escolhido'}<small>Sol a ${nf0.format(sp.alt)}° de altura, azimute ${nf0.format(sp.az)}° (${compass(sp.az)})</small>`, value: hm(t, tz), cls: 'now'});
   }
   items.sort((a,b) => a.time - b.time);
   $('sunRows').innerHTML = items.map(i => row(i.label, i.value, i.cls)).join('');
@@ -622,7 +556,7 @@ function renderMoon(){
   ev.push({time: s ?? Infinity, html: row('Ocaso da Lua', s === null ? 'não se põe neste dia' : hm(s, tz))});
   ev.sort((a,b) => a.time - b.time);
   rows += ev.map(x => x.html).join('');
-  rows += row('Posição agora', mp.alt > 0 ? `${nf0.format(mp.alt)}° de altura, ${compass(mp.az)}` : 'abaixo do horizonte');
+  rows += row(live ? 'Posição agora' : 'Posição no instante escolhido', mp.alt > 0 ? `${nf0.format(mp.alt)}° de altura, ${compass(mp.az)}` : 'abaixo do horizonte');
   const next = [{t: phases.full, l: 'Próxima lua cheia'}, {t: phases.nw, l: 'Próxima lua nova'}].filter(x => x.t).sort((a,b) => a.t - b.t);
   rows += next.map(x => row(x.l, shortDT(x.t, tz))).join('');
   rows += row('Distância à Terra', `${nf0.format(m.dist)} km`);
@@ -680,7 +614,7 @@ sel.addEventListener('change', () => {
 $('slider').addEventListener('input', e => {
   const p = localParts(loc.tz, viewMs);
   live = false;
-  viewMs = localMidnight(loc.tz, p.y, p.m, p.d) + (+e.target.value)*60000;
+  viewMs = wallTime(loc.tz, p.y, p.m, p.d, +e.target.value);
   render();
 });
 $('dateInput').addEventListener('change', e => {
@@ -688,10 +622,26 @@ $('dateInput').addEventListener('change', e => {
   const [y, m, d] = e.target.value.split('-').map(Number);
   const p = localParts(loc.tz, viewMs);
   live = false;
-  viewMs = localMidnight(loc.tz, y, m, d) + (p.h*60 + p.mi)*60000;
+  viewMs = wallTime(loc.tz, y, m, d, p.h*60 + p.mi);
   render();
 });
-$('nowBtn').addEventListener('click', () => { live = true; render(); });
+$('nowBtn').addEventListener('click', () => { live = true; $('timeNote').textContent=''; render(); });
+$('timeInput').addEventListener('change', e => {
+  if(!e.target.value) return;
+  const [h,m]=e.target.value.split(':').map(Number), p=localParts(loc.tz,viewMs);
+  live=false; viewMs=wallTime(loc.tz,p.y,p.m,p.d,h*60+m); render();
+});
+// Resolve civil clock minutes against the actual local day, including DST gaps/repeats.
+function wallTime(tz,y,m,d,minutes){
+  const start=localMidnight(tz,y,m,d), end=localMidnight(tz,y,m,d+1), matches=[];
+  let next=null;
+  for(let t=start;t<end;t+=60000){const p=localParts(tz,t), n=p.h*60+p.mi;
+    if(n===minutes) matches.push(t);
+    if(n>minutes && next===null) next=t;
+  }
+  $('timeNote').textContent=matches.length>1?'Esta hora ocorre duas vezes; mostra-se a primeira ocorrência.':!matches.length?'Esta hora não existe devido à mudança de horário; mostra-se a próxima hora disponível.':'';
+  return matches[0] ?? next ?? end-60000;
+}
 
 buildDial();
 render();
@@ -700,3 +650,4 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => navigato
 </script>
 </body>
 </html>
+
