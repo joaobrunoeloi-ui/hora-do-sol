@@ -1,6 +1,8 @@
-// Hora do Sol — service worker: funciona offline depois da primeira abertura
-const CACHE = 'hora-do-sol-v02-20260926-r3';
-const ASSETS = ['./', './index.html', './v02.css?v=3', './manifest.webmanifest',
+// Hora do Sol 0.3 — service worker
+// Páginas e estilos: tenta sempre a rede primeiro (para as atualizações chegarem logo) e usa a cópia guardada sem internet.
+// Imagens e fontes: usa a cópia guardada primeiro.
+const CACHE = 'hora-do-sol-v03-1';
+const ASSETS = ['./', './index.html', './v02.css?v=3', './manifest.webmanifest?v=4',
   './icon-192.png', './icon-512.png', './maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -11,13 +13,19 @@ self.addEventListener('activate', e => {
     .then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy));   // guarda também as fontes
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  const fresh = req.mode === 'navigate' || (url.origin === location.origin && (/\.(html|css|js|webmanifest)$/.test(url.pathname) || url.pathname.endsWith('/')));
+  if (fresh){
+    e.respondWith(fetch(req).then(res => {
+      if (res.ok){ const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
       return res;
-    }).catch(() => e.request.mode === 'navigate' ? caches.match('./index.html') : undefined))
-  );
+    }).catch(() => caches.match(req).then(hit => hit || caches.match('./index.html'))));
+    return;
+  }
+  e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
+    const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy));
+    return res;
+  })));
 });
-
