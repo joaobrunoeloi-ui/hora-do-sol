@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hora do Sol</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16213F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hora do Sol">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#D9E0E8; --page-ink:#1B2536;
+  --serif:"Bodoni Moda","Bodoni 72","Didot",Georgia,serif;
+  --sans:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --brass:#B38B45;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --page:#0B1120; --page-ink:#D6DDE8; }
+}
+:root[data-theme="dark"]{ --page:#0B1120; --page-ink:#D6DDE8; }
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--page);color:var(--page-ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+/* O céu da app muda com a altura real do Sol */
+.app{position:relative;max-width:460px;margin:0 auto;min-height:100vh;overflow:hidden;
+  background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-bottom) 62%,var(--sky-bottom) 100%);
+  color:var(--ink);transition:color .6s}
+.app[data-sky="day"]{--sky-top:#4A82BF;--sky-bottom:#C9DEF0;--ink:#12223A;--ink-soft:#3C516D;--panel:rgba(255,255,255,.52);--line:rgba(18,34,58,.14);--solar:#7B4A08;--stars:0;--band-alpha:1}
+.app[data-sky="low"]{--sky-top:#5F7FB0;--sky-bottom:#F0C08C;--ink:#1A2236;--ink-soft:#4A4F63;--panel:rgba(255,248,238,.5);--line:rgba(26,34,54,.14);--solar:#7A3F06;--stars:0}
+.app[data-sky="civil"]{--sky-top:#2B3A70;--sky-bottom:#C98779;--ink:#F6F2FA;--ink-soft:#DCD3E6;--panel:rgba(22,26,64,.34);--line:rgba(246,242,250,.18);--solar:#FFD58A;--stars:.2}
+.app[data-sky="nautical"]{--sky-top:#141E46;--sky-bottom:#424A84;--ink:#EEF0FA;--ink-soft:#BFC6E0;--panel:rgba(10,14,44,.38);--line:rgba(238,240,250,.16);--solar:#F4CB76;--stars:.65}
+.app[data-sky="night"]{--sky-top:#050A1A;--sky-bottom:#16213F;--ink:#E6EAF5;--ink-soft:#A9B3CC;--panel:rgba(14,22,52,.55);--line:rgba(230,234,245,.13);--solar:#F0C66E;--stars:1}
+
+.stars{position:absolute;left:0;right:0;top:0;height:520px;pointer-events:none;opacity:var(--stars);transition:opacity .8s}
+.app > *:not(.stars){position:relative}
+
+header{padding:22px 22px 4px}
+.loc-wrap{position:relative;display:inline-block}
+.loc-wrap::after{content:"";position:absolute;right:4px;top:52%;width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-70%) rotate(45deg);opacity:.7;pointer-events:none}
+.loc{font-family:var(--serif);font-size:32px;font-weight:500;color:inherit;background:transparent;border:0;-webkit-appearance:none;appearance:none;padding:0 26px 0 0;cursor:pointer;line-height:1.1;border-radius:6px}
+.loc option{color:#12223A;background:#fff}
+.date{font-size:15px;color:var(--ink-soft);margin-top:4px}
+.note{font-size:14px;margin-top:6px;color:var(--ink-soft)}
+
+.dial-wrap{display:flex;justify-content:center;padding:14px 0 2px}
+.dial{width:min(84vw,330px);height:auto;filter:drop-shadow(0 14px 22px rgba(0,0,0,.28))}
+.app[data-sky="civil"] .stone,.app[data-sky="nautical"] .stone{filter:brightness(.78) saturate(.8)}
+.app[data-sky="night"] .stone{filter:brightness(.52) saturate(.6)}
+#shadow{transition:opacity .6s}
+
+.readouts{display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;padding:10px 22px 0}
+.ro-label{font-size:13px;color:var(--ink-soft);font-weight:500}
+.ro-time{font-family:var(--serif);font-size:clamp(34px,10.5vw,46px);font-weight:500;line-height:1.05;font-variant-numeric:tabular-nums lining-nums;letter-spacing:-.01em}
+.ro-time.solar{color:var(--solar)}
+.sentence{grid-column:1/-1;font-size:17px;line-height:1.45;margin:12px 0 0;max-width:36ch}
+
+.explore{margin:18px 16px 0;padding:14px 16px;border-radius:14px;background:var(--panel);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.explore-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.status{font-size:14px;color:var(--ink-soft);display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:#3FB26B;box-shadow:0 0 0 3px rgba(63,178,107,.25)}
+.status.paused .dot{background:var(--brass);box-shadow:0 0 0 3px rgba(179,139,69,.25)}
+input[type=date]{font:inherit;font-size:15px;color:inherit;background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 8px;color-scheme:light dark}
+input[type=range]{width:100%;margin:14px 0 2px;accent-color:var(--brass)}
+.range-scale{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-size:14px;font-weight:600;border:0;border-radius:999px;padding:7px 14px;background:var(--ink);color:var(--sky-bottom);cursor:pointer}
+.btn[hidden]{display:none}
+
+section.panel{margin:14px 16px;padding:18px 18px 14px;border-radius:22px;background:var(--panel);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+h2{font-family:var(--serif);font-weight:500;font-size:24px;margin:0 0 4px;line-height:1.2}
+.lede{font-size:15px;color:var(--ink-soft);margin:0 0 12px;line-height:1.45;max-width:40ch}
+.rows{margin:0}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line);font-size:15px}
+.rows .row:first-child{border-top:0}
+.row .k small{display:block;color:var(--ink-soft);font-size:13px;margin-top:1px}
+.row .v{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.row.key .k,.row.key .v{font-weight:600}
+.row.past{opacity:.5}
+.row.now{border-top:2px solid var(--brass)}
+.row.now .k{font-weight:600;color:var(--solar)}
+.row.total{border-top:1.5px solid currentColor;font-weight:600}
+
+.chart{width:100%;height:auto;display:block;margin:4px 0 6px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink-soft);margin:2px 0 10px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid var(--line)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+.stat b{display:block;font-family:var(--serif);font-weight:500;font-size:21px;font-variant-numeric:tabular-nums lining-nums;line-height:1.15}
+.stat span{font-size:12.5px;color:var(--ink-soft);line-height:1.3;display:block;margin-top:2px}
+
+.moon-head{display:flex;gap:16px;align-items:center;margin:6px 0 10px}
+.moon-head svg{width:104px;height:104px;flex:none}
+.moon-name{font-family:var(--serif);font-size:26px;font-weight:500;line-height:1.15}
+.moon-sub{font-size:15px;color:var(--ink-soft);margin-top:4px}
+
+footer{padding:10px 24px 36px;font-size:13px;color:var(--ink-soft);line-height:1.5}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="app" id="app" data-sky="day">
+  <svg class="stars" id="stars" aria-hidden="true" viewBox="0 0 460 520" preserveAspectRatio="xMidYMin slice"></svg>
+
+  <header>
+    <div class="loc-wrap">
+      <select class="loc" id="loc" aria-label="Localização"></select>
+    </div>
+    <div class="date" id="date"></div>
+    <div class="note" id="note" hidden></div>
+  </header>
+
+  <div class="dial-wrap"><svg class="dial" id="dial" viewBox="0 0 320 320" role="img" aria-label="Relógio de sol"></svg></div>
+
+  <div class="readouts" aria-live="off">
+    <div><div class="ro-label">Hora legal</div><div class="ro-time" id="legal">--:--:--</div></div>
+    <div><div class="ro-label">Hora solar verdadeira</div><div class="ro-time solar" id="solar">--:--:--</div></div>
+    <p class="sentence" id="sentence"></p>
+  </div>
+
+  <div class="explore">
+    <div class="explore-top">
+      <div class="status" id="status"><span class="dot"></span><span id="statusText">Ao vivo</span></div>
+      <input type="date" id="dateInput" aria-label="Escolher data">
+      <button class="btn" id="nowBtn" hidden>Voltar a agora</button>
+    </div>
+    <input type="range" id="slider" min="0" max="1439" step="1" aria-label="Hora do dia">
+    <div class="range-scale"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span></div>
+  </div>
+
+  <section class="panel">
+    <h2>Porquê esta diferença?</h2>
+    <p class="lede">A hora legal segue o fuso; a hora solar segue o Sol no céu deste lugar.</p>
+    <div class="rows" id="explain"></div>
+  </section>
+
+  <section class="panel">
+    <h2>O Sol hoje</h2>
+    <svg class="chart" id="curve" viewBox="0 0 340 170" role="img" aria-label="Altura do Sol e da Lua ao longo do dia"></svg>
+    <div class="legend">
+      <span><i style="background:#F7F2E2"></i>Dia</span>
+      <span><i style="background:#E9B38A"></i>Crepúsculo civil</span>
+      <span><i style="background:#6E78B4"></i>Náutico</span>
+      <span><i style="background:#39447A"></i>Astronómico</span>
+      <span><i style="background:#141C3A"></i>Noite</span>
+    </div>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Momentos de luz</h2>
+    <div class="rows" id="sunRows"></div>
+  </section>
+
+  <section class="panel">
+    <h2>A Lua</h2>
+    <div class="moon-head">
+      <svg id="moonSvg" viewBox="0 0 110 110" role="img" aria-label="Fase da Lua"></svg>
+      <div><div class="moon-name" id="moonName"></div><div class="moon-sub" id="moonSub"></div></div>
+    </div>
+    <div class="rows" id="moonRows"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Equação do tempo</h2>
+    <p class="lede" id="eotLede"></p>
+    <svg class="chart" id="eot" viewBox="0 0 340 140" role="img" aria-label="Equação do tempo ao longo do ano"></svg>
+  </section>
+
+  <footer>Versão 0.1. Tudo é calculado no próprio dispositivo, sem internet, com os algoritmos da NOAA (Sol) e de Jean Meeus (Lua). Precisão típica de 1 a 2 minutos.</footer>
+</main>
+
+<script id="astro">
+// ---------- Cálculos astronómicos (sem DOM, reutilizáveis em Kotlin) ----------
+const rad = Math.PI/180, deg = 180/Math.PI;
+const mod = (a,b) => ((a % b) + b) % b;
+const jd = ms => ms/86400000 + 2440587.5;
+
+function sun(ms){
+  const d = jd(ms) - 2451545, T = d/36525;
+  const L0 = mod(280.46646 + T*(36000.76983 + 0.0003032*T), 360);
+  const M = 357.52911 + T*(35999.05029 - 0.0001537*T);
+  const e = 0.016708634 - T*(0.000042037 + 0.0000001267*T);
+  const Mr = M*rad;
+  const C = Math.sin(Mr)*(1.914602 - T*(0.004817 + 0.000014*T)) + Math.sin(2*Mr)*(0.019993 - 0.000101*T) + Math.sin(3*Mr)*0.000289;
+  const omega = 125.04 - 1934.136*T;
+  const lambda = L0 + C - 0.00569 - 0.00478*Math.sin(omega*rad);
+  const eps0 = 23 + (26 + (21.448 - T*(46.815 + T*(0.00059 - T*0.001813)))/60)/60;
+  const eps = eps0 + 0.00256*Math.cos(omega*rad);
+  const dec = Math.asin(Math.sin(eps*rad)*Math.sin(lambda*rad));
+  const y = Math.tan(eps*rad/2)**2, L0r = L0*rad;
+  const eot = 4*deg*(y*Math.sin(2*L0r) - 2*e*Math.sin(Mr) + 4*e*y*Math.sin(Mr)*Math.cos(2*L0r) - 0.5*y*y*Math.sin(4*L0r) - 1.25*e*e*Math.sin(2*Mr));
+  return {dec, eot, lambda: mod(lambda,360)};
+}
+
+// Posição do Sol + hora solar verdadeira (minutos desde a meia-noite solar)
+function sunPos(ms, lat, lon){
+  const s = sun(ms);
+  const utcMin = mod(ms/60000, 1440);
+  const tst = mod(utcMin + 4*lon + s.eot, 1440);
+  const Hd = tst/4 - 180, H = Hd*rad, phi = lat*rad;
+  const alt = Math.asin(Math.sin(phi)*Math.sin(s.dec) + Math.cos(phi)*Math.cos(s.dec)*Math.cos(H))*deg;
+  const az = mod(Math.atan2(Math.sin(H), Math.cos(H)*Math.sin(phi) - Math.tan(s.dec)*Math.cos(phi))*deg + 180, 360);
+  return {alt, az, H: Hd, tst, eot: s.eot, lambda: s.lambda};
+}
+
+function moon(ms){
+  const d = jd(ms) - 2451545, T = d/36525;
+  const Lp = 218.3164477 + 481267.88123421*T;
+  const D  = 297.8501921 + 445267.1114034*T;
+  const M  = 357.5291092 + 35999.0502909*T;
+  const Mp = 134.9633964 + 477198.8675055*T;
+  const F  = 93.2720950 + 483202.0175233*T;
+  const s = x => Math.sin(x*rad), c = x => Math.cos(x*rad);
+  const lon = Lp + 6.289*s(Mp) + 1.274*s(2*D-Mp) + 0.658*s(2*D) + 0.214*s(2*Mp) - 0.186*s(M) - 0.114*s(2*F)
+    + 0.059*s(2*D-2*Mp) + 0.057*s(2*D-M-Mp) + 0.053*s(2*D+Mp) + 0.046*s(2*D-M) + 0.041*s(Mp-M) - 0.035*s(D) - 0.030*s(Mp+M);
+  const lat = 5.128*s(F) + 0.281*s(Mp+F) + 0.278*s(Mp-F) + 0.173*s(2*D-F) + 0.055*s(2*D-Mp+F) + 0.046*s(2*D-Mp-F) + 0.033*s(2*D+F);
+  const dist = 385001 - 20905*c(Mp) - 3699*c(2*D-Mp) - 2956*c(2*D) - 570*c(2*Mp) + 246*c(2*Mp-2*D) - 205*c(M-2*D) - 171*c(Mp+2*D) - 152*c(Mp+M-2*D);
+  const eps = (23.4393 - 3.563e-7*d)*rad, l = lon*rad, b = lat*rad;
+  const ra = Math.atan2(Math.sin(l)*Math.cos(eps) - Math.tan(b)*Math.sin(eps), Math.cos(l));
+  const dec = Math.asin(Math.sin(b)*Math.cos(eps) + Math.cos(b)*Math.sin(eps)*Math.sin(l));
+  const i = 180 - D - 6.289*s(Mp) + 2.100*s(M) - 1.274*s(2*D-Mp) - 0.658*s(2*D) - 0.214*s(2*Mp) - 0.110*s(D);
+  return {lon: mod(lon,360), ra, dec, dist, illum: (1 + c(i))/2, par: Math.asin(6378.14/dist)*deg, d, T};
+}
+
+function moonPos(ms, lat, lon){
+  const m = moon(ms);
+  const gmst = mod(280.46061837 + 360.98564736629*m.d + 0.000387933*m.T*m.T, 360);
+  const H = (gmst + lon)*rad - m.ra, phi = lat*rad;
+  const alt = Math.asin(Math.sin(phi)*Math.sin(m.dec) + Math.cos(phi)*Math.cos(m.dec)*Math.cos(H))*deg;
+  const az = mod(Math.atan2(Math.sin(H), Math.cos(H)*Math.sin(phi) - Math.tan(m.dec)*Math.cos(phi))*deg + 180, 360);
+  return {alt, az, h0: 0.7275*m.par - 0.5667, m};
+}
+
+const elongation = ms => mod(moon(ms).lon - sun(ms).lambda, 360);
+
+function refine(f, a, b){
+  let fa = f(a);
+  for (let i = 0; i < 24; i++){
+    const mid = (a+b)/2, fm = f(mid);
+    if ((fm < 0) === (fa < 0)) { a = mid; fa = fm; } else b = mid;
+  }
+  return (a+b)/2;
+}
+
+// Todos os eventos de um dia local [start, end)
+function computeDay(lat, lon, start, end){
+  const step = 5*60000, samples = [];
+  for (let t = start; t <= end; t += step){
+    const mp = moonPos(t, lat, lon);
+    samples.push({t, sun: sunPos(t, lat, lon).alt, moon: mp.alt, mh: mp.alt - mp.h0});
+  }
+  const sunF = level => t => sunPos(t, lat, lon).alt - level;
+  function cross(get, fn){
+    const out = [];
+    for (let i = 1; i < samples.length; i++){
+      const va = get(samples[i-1]), vb = get(samples[i]);
+      if (va < 0 && vb >= 0) out.push({t: refine(fn, samples[i-1].t, samples[i].t), up: true});
+      else if (va >= 0 && vb < 0) out.push({t: refine(fn, samples[i-1].t, samples[i].t), up: false});
+    }
+    return out;
+  }
+  const ev = {};
+  for (const L of [-18, -12, -6, -4, -0.833, 6]){
+    const c = cross(s => s.sun - L, sunF(L));
+    const up = c.find(x => x.up), dn = c.find(x => !x.up);
+    ev[L] = {up: up ? up.t : null, dn: dn ? dn.t : null};
+  }
+  const mc = cross(s => s.mh, t => { const r = moonPos(t, lat, lon); return r.alt - r.h0; });
+  const mUp = mc.find(x => x.up), mDn = mc.find(x => !x.up);
+  let noon = start + 12*3600000;
+  for (let i = 0; i < 4; i++) noon -= sunPos(noon, lat, lon).H*4*60000;
+  const rise = ev[-0.833].up, set = ev[-0.833].dn;
+  let dayLen;
+  if (rise !== null && set !== null && set > rise) dayLen = set - rise;
+  else if (samples.every(s => s.sun > -0.833)) dayLen = end - start;
+  else if (samples.every(s => s.sun <= -0.833)) dayLen = 0;
+  else dayLen = null;
+  return {start, end, samples, ev, noon, noonAlt: sunPos(noon, lat, lon).alt, rise, set, dayLen,
+          moonRise: mUp ? mUp.t : null, moonSet: mDn ? mDn.t : null};
+}
+
+function dayLengthOnly(lat, lon, start, end){
+  const f = t => sunPos(t, lat, lon).alt + 0.833;
+  let rise = null, set = null, prev = f(start), prevT = start, up = prev >= 0, allUp = up, allDn = !up;
+  for (let t = start + 600000; t <= end; t += 600000){
+    const v = f(t);
+    if (v >= 0) allDn = false; else allUp = false;
+    if (prev < 0 && v >= 0 && rise === null) rise = refine(f, prevT, t);
+    if (prev >= 0 && v < 0 && set === null) set = refine(f, prevT, t);
+    prev = v; prevT = t;
+  }
+  if (rise !== null && set !== null && set > rise) return set - rise;
+  if (allUp) return end - start;
+  if (allDn) return 0;
+  return null;
+}
+
+// Próxima lua cheia (target=180) ou nova (target=0)
+function nextPhase(ms, target){
+  const g = t => mod(elongation(t) - target + 180, 360) - 180;
+  const step = 6*3600000;
+  let a = ms, ga = g(a);
+  for (let i = 0; i < 140; i++){
+    const b = a + step, gb = g(b);
+    if (ga < 0 && gb >= 0 && gb - ga < 90) return refine(g, a, b);
+    a = b; ga = gb;
+  }
+  return null;
+}
+</script>
+
+<script>
+// ---------- Interface ----------
+const LOCS = [
+  {id:'lisboa', name:'Lisboa', lat:38.7223, lon:-9.1393, tz:'Europe/Lisbon'},
+  {id:'porto', name:'Porto', lat:41.1579, lon:-8.6291, tz:'Europe/Lisbon'},
+  {id:'braganca', name:'Bragança', lat:41.8061, lon:-6.7567, tz:'Europe/Lisbon'},
+  {id:'faro', name:'Faro', lat:37.0194, lon:-7.9322, tz:'Europe/Lisbon'},
+  {id:'funchal', name:'Funchal', lat:32.6669, lon:-16.9241, tz:'Atlantic/Madeira'},
+  {id:'pdelgada', name:'Ponta Delgada', lat:37.7412, lon:-25.6756, tz:'Atlantic/Azores'}
+];
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+const MINUS = '\u2212';
+const nf1 = new Intl.NumberFormat('pt-PT', {minimumFractionDigits:1, maximumFractionDigits:1});
+const nf0 = new Intl.NumberFormat('pt-PT', {maximumFractionDigits:0});
+
+const partsCache = new Map();
+function localParts(tz, ms){
+  if (!partsCache.has(tz)) partsCache.set(tz, new Intl.DateTimeFormat('en-US', {timeZone:tz, hourCycle:'h23', year:'numeric', month:'numeric', day:'numeric', hour:'numeric', minute:'numeric', second:'numeric'}));
+  const p = {};
+  for (const x of partsCache.get(tz).formatToParts(new Date(ms))) if (x.type !== 'literal') p[x.type] = +x.value;
+  if (p.hour === 24) p.hour = 0;
+  return {y:p.year, m:p.month, d:p.day, h:p.hour, mi:p.minute, s:p.second};
+}
+function tzOffsetMin(tz, ms){
+  const p = localParts(tz, ms);
+  return Math.round((Date.UTC(p.y, p.m-1, p.d, p.h, p.mi, p.s) - Math.floor(ms/1000)*1000)/60000);
+}
+function localMidnight(tz, y, m, d){
+  const base = Date.UTC(y, m-1, d); let t = base;
+  for (let i = 0; i < 3; i++) t = base - tzOffsetMin(tz, t)*60000;
+  return t;
+}
+const fmtCache = new Map();
+function fmt(ms, tz, opts, key){
+  const k = tz + key;
+  if (!fmtCache.has(k)) fmtCache.set(k, new Intl.DateTimeFormat('pt-PT', {timeZone:tz, ...opts}));
+  return fmtCache.get(k).format(new Date(ms));
+}
+const hm = (ms, tz) => ms === null ? '—' : fmt(ms, tz, {hour:'2-digit', minute:'2-digit', hourCycle:'h23'}, 'hm');
+const hms = (ms, tz) => fmt(ms, tz, {hour:'2-digit', minute:'2-digit', second:'2-digit', hourCycle:'h23'}, 'hms');
+const longDate = (ms, tz) => fmt(ms, tz, {weekday:'long', day:'numeric', month:'long', year:'numeric'}, 'ld');
+const shortDT = (ms, tz) => fmt(ms, tz, {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit', hourCycle:'h23'}, 'sdt');
+function solarClock(min){ const t = Math.floor(mod(min,1440)*60); return pad(Math.floor(t/3600)) + ':' + pad(Math.floor(t/60)%60) + ':' + pad(t%60); }
+function dur(ms){ const m = Math.round(Math.abs(ms)/60000), h = Math.floor(m/60), r = m%60; return h ? (r ? `${h} h ${r} min` : `${h} h`) : `${r} min`; }
+function durMin(min){ return dur(min*60000); }
+const signed = (x, digits=1) => (x < 0 ? MINUS : '+') + (digits ? nf1 : nf0).format(Math.abs(x));
+const COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+const compass = az => COMPASS[Math.round(az/22.5) % 16];
+const ROMAN = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
+
+// ---------- Estado ----------
+let loc = LOCS[0], live = true, viewMs = Date.now();
+let dayKey = null, day = null, yLen = null, phaseKey = null, phases = null, eotYear = null, eotPts = null;
+
+// ---------- Estrelas ----------
+(function stars(){
+  let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647)/2147483647;
+  let s = '';
+  for (let i = 0; i < 70; i++){
+    const r = rnd() < .85 ? .6 + rnd()*.6 : 1.3 + rnd()*.5;
+    s += `<circle cx="${(rnd()*460).toFixed(1)}" cy="${(rnd()*500).toFixed(1)}" r="${r.toFixed(2)}" fill="#fff" opacity="${(.35+rnd()*.6).toFixed(2)}"/>`;
+  }
+  $('stars').innerHTML = s;
+})();
+
+// ---------- Relógio de sol horizontal (linhas horárias reais para a latitude) ----------
+function hourAngleOnDial(lat, Hdeg){
+  const phi = lat*rad, H = Hdeg*rad;
+  return Math.atan2(Math.sin(phi)*Math.sin(H), Math.cos(H));
+}
+function buildDial(){
+  const lat = loc.lat, cx = 160, cy = 160;
+  let lines = '', labels = '';
+  for (let h = 4; h <= 20; h += 0.5){
+    const th = hourAngleOnDial(lat, (h-12)*15), sx = Math.sin(th), sy = -Math.cos(th);
+    const full = h % 1 === 0;
+    if (full && (h < 5 || h > 19)) continue;
+    if (!full && (h < 4.5 || h > 19.5)) continue;
+    const r0 = full ? 26 : 104, r1 = 120;
+    lines += `<line x1="${(cx+sx*r0).toFixed(1)}" y1="${(cy+sy*r0).toFixed(1)}" x2="${(cx+sx*r1).toFixed(1)}" y2="${(cy+sy*r1).toFixed(1)}" stroke="#5E574B" stroke-opacity="${full?.75:.45}" stroke-width="${full?1.1:.7}"/>`;
+    if (full) labels += `<text x="${(cx+sx*134).toFixed(1)}" y="${(cy+sy*134+4.5).toFixed(1)}" text-anchor="middle" font-family="Bodoni Moda, Georgia, serif" font-size="13" fill="#463F34">${ROMAN[h%12]}</text>`;
+  }
+  const a1 = 236*rad, a2 = 124*rad, R = 106;
+  const motto = `M${(cx+Math.sin(a1)*R).toFixed(1)},${(cy-Math.cos(a1)*R).toFixed(1)} A${R},${R} 0 0 0 ${(cx+Math.sin(a2)*R).toFixed(1)},${(cy-Math.cos(a2)*R).toFixed(1)}`;
+  const la = Math.abs(lat), ld = Math.floor(la), lm = Math.round((la-ld)*60);
+  $('dial').innerHTML = `
+  <defs>
+    <radialGradient id="stoneG" cx="45%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#F1ECE1"/><stop offset=".75" stop-color="#E0D8C7"/><stop offset="1" stop-color="#CFC5B1"/>
+    </radialGradient>
+    <linearGradient id="brassG" x1="0" x2="1"><stop offset="0" stop-color="#8A6727"/><stop offset=".5" stop-color="#D2AB62"/><stop offset="1" stop-color="#8F6B2B"/></linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.3"/></filter>
+    <path id="mottoPath" d="${motto}"/>
+  </defs>
+  <g class="stone">
+    <circle cx="160" cy="160" r="152" fill="url(#stoneG)" stroke="#A69C88" stroke-width="1.2"/>
+    <circle cx="160" cy="160" r="144" fill="none" stroke="#5E574B" stroke-opacity=".35" stroke-width=".6"/>
+    <circle cx="160" cy="160" r="120" fill="none" stroke="#5E574B" stroke-opacity=".45" stroke-width=".8"/>
+    ${lines}${labels}
+    <text font-family="Bodoni Moda, Georgia, serif" font-style="italic" font-size="12.5" fill="#5A5245" letter-spacing=".6"><textPath href="#mottoPath" startOffset="50%" text-anchor="middle">Só conto as horas de sol</textPath></text>
+    <text x="160" y="232" text-anchor="middle" font-family="Figtree, sans-serif" font-size="10" fill="#6A6254" letter-spacing=".8">${ld}° ${pad(lm)}′ ${lat >= 0 ? 'N' : 'S'}</text>
+    <g id="shadow" filter="url(#soft)"><polygon points="-4.5,5 4.5,5 1.2,-116 -1.2,-116" fill="#1E1B28" fill-opacity=".5"/></g>
+    <polygon points="160,78 163.2,160 156.8,160" fill="url(#brassG)" stroke="#6B4F1B" stroke-width=".6"/>
+    <circle cx="160" cy="160" r="4.5" fill="#8F6B2B" stroke="#5A4216" stroke-width=".6"/>
+  </g>`;
+}
+
+// ---------- Céu ----------
+function skyFor(alt){ return alt >= 8 ? 'day' : alt >= -0.833 ? 'low' : alt >= -6 ? 'civil' : alt >= -12 ? 'nautical' : 'night'; }
+function bandColor(alt){ return alt >= -0.833 ? '#F7F2E2' : alt >= -6 ? '#E9B38A' : alt >= -12 ? '#6E78B4' : alt >= -18 ? '#39447A' : '#141C3A'; }
+
+// ---------- Desenho da Lua ----------
+function moonSVG(k, waxing){
+  const r = 48, cx = 55, cy = 55, rx = Math.abs(1 - 2*k)*r;
+  const s1 = waxing ? 1 : 0, s2 = k >= .5 ? (waxing ? 1 : 0) : (waxing ? 0 : 1);
+  const lit = `M${cx},${cy-r} A${r},${r} 0 0 ${s1} ${cx},${cy+r} A${rx.toFixed(2)},${r} 0 0 ${s2} ${cx},${cy-r}Z`;
+  return `<defs><clipPath id="litClip"><path d="${lit}"/></clipPath>
+    <radialGradient id="moonG" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#FBF7EC"/><stop offset="1" stop-color="#D9D2BF"/></radialGradient></defs>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#252C44" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+    <g clip-path="url(#litClip)">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#moonG)"/>
+      <circle cx="42" cy="38" r="11" fill="#9E9784" opacity=".28"/><circle cx="66" cy="50" r="8" fill="#9E9784" opacity=".25"/>
+      <circle cx="52" cy="72" r="13" fill="#9E9784" opacity=".22"/><circle cx="74" cy="32" r="5" fill="#9E9784" opacity=".25"/>
+    </g>`;
+}
+function phaseName(e){
+  if (e < 7 || e >= 353) return 'Lua nova';
+  if (e < 83) return 'Lua crescente';
+  if (e < 97) return 'Quarto crescente';
+  if (e < 173) return 'Gibosa crescente';
+  if (e < 187) return 'Lua cheia';
+  if (e < 263) return 'Gibosa minguante';
+  if (e < 277) return 'Quarto minguante';
+  return 'Lua minguante';
+}
+
+// ---------- Renderização ----------
+const row = (k, v, cls='') => `<div class="row ${cls}"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+
+function render(){
+  if (live) viewMs = Date.now();
+  const tz = loc.tz, p = localParts(tz, viewMs);
+  const key = `${loc.id}|${p.y}-${p.m}-${p.d}`;
+  if (key !== dayKey){
+    const start = localMidnight(tz, p.y, p.m, p.d), end = localMidnight(tz, p.y, p.m, p.d+1);
+    day = computeDay(loc.lat, loc.lon, start, end);
+    yLen = dayLengthOnly(loc.lat, loc.lon, localMidnight(tz, p.y, p.m, p.d-1), start);
+    dayKey = key;
+  }
+  const sp = sunPos(viewMs, loc.lat, loc.lon);
+  const app = $('app');
+  app.dataset.sky = skyFor(sp.alt);
+
+  // Cabeçalho
+  $('date').textContent = longDate(viewMs, tz);
+
+  // Relógio
+  const up = sp.alt > 0;
+  const th = hourAngleOnDial(loc.lat, sp.H)*deg;
+  const sh = $('shadow');
+  sh.setAttribute('transform', `translate(160 160) rotate(${th.toFixed(2)})`);
+  sh.style.opacity = up ? 1 : 0;
+  $('legal').textContent = hms(viewMs, tz);
+  $('solar').textContent = solarClock(sp.tst);
+
+  // Diferença e explicação
+  const off = tzOffsetMin(tz, viewMs);
+  const offJan = tzOffsetMin(tz, Date.UTC(p.y,0,15)), offJul = tzOffsetMin(tz, Date.UTC(p.y,6,15));
+  const summer = off > Math.min(offJan, offJul);
+  const lonTerm = -4*loc.lon, eotTerm = -sp.eot, total = off + lonTerm + eotTerm;
+  const utcLabel = off === 0 ? 'UTC' : `UTC${off > 0 ? '+' : MINUS}${Math.abs(off)/60}`;
+  let sentence;
+  if (Math.abs(total) < 1) sentence = 'Neste momento, o relógio e o Sol estão praticamente certos um com o outro.';
+  else sentence = `O relógio vai ${durMin(total)} ${total > 0 ? 'adiantado' : 'atrasado'} em relação ao Sol.`;
+  if (!up) sentence += ' O Sol está abaixo do horizonte, por isso o relógio de sol não projeta sombra.';
+  $('sentence').textContent = sentence;
+  $('explain').innerHTML =
+    row(`Fuso horário<small>${utcLabel}${summer ? ', hora de verão' : ''}</small>`, `${signed(off,0)} min`) +
+    row(`Longitude<small>${nf1.format(Math.abs(loc.lon))}° a ${loc.lon < 0 ? 'oeste' : 'leste'} de Greenwich, 4 min por grau</small>`, `${signed(lonTerm)} min`) +
+    row(`Equação do tempo<small>o Sol verdadeiro vai ${nf1.format(Math.abs(sp.eot))} min ${sp.eot >= 0 ? 'adiantado' : 'atrasado'} face ao Sol médio</small>`, `${signed(eotTerm)} min`) +
+    row('Diferença total', (total < 0 ? MINUS : '') + durMin(total), 'total');
+
+  // Estado de exploração
+  $('status').classList.toggle('paused', !live);
+  $('statusText').textContent = live ? 'Ao vivo' : 'A explorar';
+  $('nowBtn').hidden = live;
+  const di = $('dateInput');
+  if (document.activeElement !== di) di.value = `${p.y}-${pad(p.m)}-${pad(p.d)}`;
+  const sl = $('slider');
+  if (document.activeElement !== sl || live) sl.value = p.h*60 + p.mi;
+
+  renderCurve(sp);
+  renderStats();
+  renderSunRows(sp);
+  renderMoon();
+  renderEot(sp, p.y);
+}
+
+function renderCurve(sp){
+  const W = 340, top = 8, h0y = 92, bottom = 150, span = day.end - day.start;
+  const x = t => ((t - day.start)/span)*W;
+  const y = a => Math.max(top, Math.min(bottom, h0y - a*1.0));
+  let bands = '', cur = null, bx = 0;
+  day.samples.forEach((s, i) => {
+    const c = bandColor(s.sun);
+    if (c !== cur){ if (cur) bands += `<rect x="${bx.toFixed(1)}" y="${top}" width="${(x(s.t)-bx+.6).toFixed(1)}" height="${bottom-top}" fill="${cur}"/>`; cur = c; bx = x(s.t); }
+    if (i === day.samples.length-1) bands += `<rect x="${bx.toFixed(1)}" y="${top}" width="${(W-bx).toFixed(1)}" height="${bottom-top}" fill="${cur}"/>`;
+  });
+  const sunPath = day.samples.map((s,i) => `${i?'L':'M'}${x(s.t).toFixed(1)},${y(s.sun).toFixed(1)}`).join('');
+  const moonPath = day.samples.map((s,i) => `${i?'L':'M'}${x(s.t).toFixed(1)},${y(s.moon).toFixed(1)}`).join('');
+  const inDay = viewMs >= day.start && viewMs < day.end;
+  const nx = x(viewMs), mp = moonPos(viewMs, loc.lat, loc.lon);
+  let ticks = '';
+  for (let h = 0; h <= 24; h += 6){
+    const tx = Math.min(W-8, Math.max(8, x(day.start + h*3600000)));
+    ticks += `<text x="${tx.toFixed(1)}" y="166" text-anchor="middle" font-size="11" fill="currentColor" opacity=".7">${h}h</text>`;
+  }
+  $('curve').innerHTML = `
+    <defs><clipPath id="cc"><rect x="0" y="${top}" width="${W}" height="${bottom-top}" rx="12"/></clipPath></defs>
+    <g clip-path="url(#cc)">${bands}
+      <line x1="0" x2="${W}" y1="${h0y}" y2="${h0y}" stroke="#12223A" stroke-opacity=".45" stroke-width="1" stroke-dasharray="2 3"/>
+      <path d="${moonPath}" fill="none" stroke="#8C93AE" stroke-width="1.6" stroke-dasharray="4 3"/>
+      <path d="${sunPath}" fill="none" stroke="#B0781C" stroke-width="2.4" stroke-linejoin="round"/>
+      ${inDay ? `<line x1="${nx.toFixed(1)}" x2="${nx.toFixed(1)}" y1="${top}" y2="${bottom}" stroke="#12223A" stroke-opacity=".55" stroke-width="1"/>
+      <circle cx="${nx.toFixed(1)}" cy="${y(mp.alt).toFixed(1)}" r="4.5" fill="#E9E6F2" stroke="#5E6685" stroke-width="1"/>
+      <circle cx="${nx.toFixed(1)}" cy="${y(sp.alt).toFixed(1)}" r="6.5" fill="#F4C451" stroke="#8A5A0E" stroke-width="1.4"/>` : ''}
+    </g>
+    <text x="6" y="${h0y-5}" font-size="10" fill="#12223A" opacity=".7">horizonte</text>
+    ${ticks}`;
+}
+
+function renderStats(){
+  const tz = loc.tz, t = viewMs;
+  let s = '';
+  if (day.dayLen === null) s += `<div class="stat"><b>—</b><span>Duração do dia</span></div>`;
+  else {
+    let delta = '';
+    if (yLen !== null){
+      const d = Math.round((day.dayLen - yLen)/1000), a = Math.abs(d);
+      delta = `${d < 0 ? MINUS : '+'}${Math.floor(a/60)} min ${pad(a%60)} s face a ontem`;
+    }
+    s += `<div class="stat"><b>${dur(day.dayLen)}</b><span>Duração do dia<br>${delta}</span></div>`;
+  }
+  if (day.rise !== null && day.set !== null){
+    if (t < day.rise){
+      s += `<div class="stat"><b>${dur(day.rise - t)}</b><span>Até o Sol nascer</span></div>`;
+      s += `<div class="stat"><b>${hm(day.rise, tz)}</b><span>Nascer do Sol</span></div>`;
+    } else if (t > day.set){
+      s += `<div class="stat"><b>${dur(t - day.set)}</b><span>Desde o pôr do Sol</span></div>`;
+      s += `<div class="stat"><b>${hm(day.set, tz)}</b><span>Pôr do Sol</span></div>`;
+    } else {
+      s += `<div class="stat"><b>${dur(t - day.rise)}</b><span>Luz já passada</span></div>`;
+      s += `<div class="stat"><b>${dur(day.set - t)}</b><span>Luz que falta</span></div>`;
+    }
+  }
+  $('stats').innerHTML = s;
+}
+
+function renderSunRows(sp){
+  const tz = loc.tz, e = day.ev, t = viewMs, items = [];
+  const add = (time, label, value, cls='') => { if (time !== null) items.push({time, label, value: value ?? hm(time, tz), cls}); };
+  const range = (a, b) => (a === null || b === null) ? null : `${hm(a,tz)}–${hm(b,tz)}`;
+  add(e[-18].up, 'Início do crepúsculo astronómico');
+  add(e[-12].up, 'Início do crepúsculo náutico');
+  add(e[-6].up, 'Primeira luz<small>início do crepúsculo civil</small>');
+  if (range(e[-6].up, e[-4].up)) add(e[-6].up + 1, 'Hora azul', range(e[-6].up, e[-4].up));
+  if (range(e[-4].up, e[6].up)) add(e[-4].up + 2, 'Hora dourada', range(e[-4].up, e[6].up));
+  add(day.rise, 'Nascer do Sol', null, 'key');
+  add(day.noon, `Meio-dia solar<small>altura máxima de ${nf0.format(day.noonAlt)}°</small>`, null, 'key');
+  if (range(e[6].dn, e[-4].dn)) add(e[6].dn, 'Hora dourada', range(e[6].dn, e[-4].dn));
+  add(day.set, 'Pôr do Sol', null, 'key');
+  if (range(e[-4].dn, e[-6].dn)) add(e[-4].dn + 1, 'Hora azul', range(e[-4].dn, e[-6].dn));
+  add(e[-6].dn, 'Fim do crepúsculo civil');
+  add(e[-12].dn, 'Fim do crepúsculo náutico');
+  add(e[-18].dn, 'Fim do crepúsculo astronómico');
+  items.forEach(i => { if (i.time < t && !i.cls.includes('now')) i.cls += ' past'; });
+  if (t >= day.start && t < day.end){
+    items.push({time: t, label: `Agora<small>Sol a ${nf0.format(sp.alt)}° de altura, azimute ${nf0.format(sp.az)}° (${compass(sp.az)})</small>`, value: hm(t, tz), cls: 'now'});
+  }
+  items.sort((a,b) => a.time - b.time);
+  $('sunRows').innerHTML = items.map(i => row(i.label, i.value, i.cls)).join('');
+}
+
+function renderMoon(){
+  const tz = loc.tz, t = viewMs;
+  const m = moon(t), el = elongation(t), waxing = el < 180;
+  $('moonSvg').innerHTML = moonSVG(m.illum, waxing);
+  $('moonName').textContent = phaseName(el);
+  const age = el/360*29.530588;
+  $('moonSub').textContent = `${nf0.format(m.illum*100)}% iluminada, ${nf1.format(age)} dias de idade`;
+  const pk = Math.floor(t/3600000);
+  if (pk !== phaseKey){ phases = {full: nextPhase(t, 180), nw: nextPhase(t, 0)}; phaseKey = pk; }
+  const mp = moonPos(t, loc.lat, loc.lon);
+  let rows = '';
+  const r = day.moonRise, s = day.moonSet;
+  const ev = [];
+  ev.push({time: r ?? Infinity, html: row('Nascer da Lua', r === null ? 'não nasce neste dia' : hm(r, tz))});
+  ev.push({time: s ?? Infinity, html: row('Ocaso da Lua', s === null ? 'não se põe neste dia' : hm(s, tz))});
+  ev.sort((a,b) => a.time - b.time);
+  rows += ev.map(x => x.html).join('');
+  rows += row('Posição agora', mp.alt > 0 ? `${nf0.format(mp.alt)}° de altura, ${compass(mp.az)}` : 'abaixo do horizonte');
+  const next = [{t: phases.full, l: 'Próxima lua cheia'}, {t: phases.nw, l: 'Próxima lua nova'}].filter(x => x.t).sort((a,b) => a.t - b.t);
+  rows += next.map(x => row(x.l, shortDT(x.t, tz))).join('');
+  rows += row('Distância à Terra', `${nf0.format(m.dist)} km`);
+  $('moonRows').innerHTML = rows;
+}
+
+function renderEot(sp, year){
+  if (eotYear !== year){
+    eotPts = [];
+    for (let i = 0; i < 365; i++) eotPts.push(sun(Date.UTC(year, 0, 1+i, 12)).eot);
+    eotYear = year;
+  }
+  const W = 340, mid = 62, k = 3.1, x = i => 8 + i/364*(W-16);
+  const path = eotPts.map((v,i) => `${i?'L':'M'}${x(i).toFixed(1)},${(mid - v*k).toFixed(1)}`).join('');
+  const doy = Math.floor((viewMs - Date.UTC(year,0,1))/86400000);
+  const mx = x(Math.max(0, Math.min(364, doy))), my = mid - sp.eot*k;
+  const months = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+  let ml = '';
+  months.forEach((m,i) => { const d = (Date.UTC(year,i,15) - Date.UTC(year,0,1))/86400000; ml += `<text x="${x(d).toFixed(1)}" y="134" text-anchor="middle" font-size="11" fill="currentColor" opacity=".7">${m}</text>`; });
+  $('eot').innerHTML = `
+    <line x1="8" x2="${W-8}" y1="${mid}" y2="${mid}" stroke="currentColor" stroke-opacity=".35" stroke-width="1"/>
+    <text x="${W-8}" y="${mid-12*k}" text-anchor="end" font-size="10" fill="currentColor" opacity=".65">Sol adiantado</text>
+    <text x="${W-8}" y="${mid+12*k+8}" text-anchor="end" font-size="10" fill="currentColor" opacity=".65">Sol atrasado</text>
+    <path d="${path}" fill="none" stroke="#B0781C" stroke-width="2.2"/>
+    <line x1="${mx.toFixed(1)}" x2="${mx.toFixed(1)}" y1="8" y2="118" stroke="currentColor" stroke-opacity=".35" stroke-dasharray="2 3"/>
+    <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="5.5" fill="#F4C451" stroke="#8A5A0E" stroke-width="1.3"/>
+    ${ml}`;
+  const a = nf1.format(Math.abs(sp.eot));
+  $('eotLede').textContent = `Ao longo do ano, o Sol verdadeiro adianta-se ou atrasa-se até cerca de 16 minutos em relação a um Sol "médio" regular. Hoje vai ${a} min ${sp.eot >= 0 ? 'adiantado' : 'atrasado'}.`;
+}
+
+// ---------- Controlos ----------
+const sel = $('loc');
+sel.innerHTML = LOCS.map(l => `<option value="${l.id}">${l.name}</option>`).join('') + '<option value="gps">A minha localização</option>';
+function resetCaches(){ dayKey = null; }
+sel.addEventListener('change', () => {
+  const note = $('note'); note.hidden = true;
+  if (sel.value === 'gps'){
+    const prev = loc.id;
+    if (!navigator.geolocation){ note.textContent = 'Este navegador não permite obter a localização. Escolhe uma cidade da lista.'; note.hidden = false; sel.value = prev; return; }
+    note.textContent = 'A obter a localização…'; note.hidden = false;
+    navigator.geolocation.getCurrentPosition(pos => {
+      loc = {id:'gps', name:'A minha localização', lat: pos.coords.latitude, lon: pos.coords.longitude, tz: Intl.DateTimeFormat().resolvedOptions().timeZone};
+      note.textContent = `${nf1.format(Math.abs(loc.lat))}° ${loc.lat>=0?'N':'S'}, ${nf1.format(Math.abs(loc.lon))}° ${loc.lon>=0?'E':'O'}`;
+      buildDial(); resetCaches(); render();
+    }, () => {
+      note.textContent = 'Não foi possível obter a localização. Escolhe uma cidade da lista.';
+      sel.value = prev;
+    }, {timeout: 10000});
+    return;
+  }
+  loc = LOCS.find(l => l.id === sel.value);
+  buildDial(); resetCaches(); render();
+});
+$('slider').addEventListener('input', e => {
+  const p = localParts(loc.tz, viewMs);
+  live = false;
+  viewMs = localMidnight(loc.tz, p.y, p.m, p.d) + (+e.target.value)*60000;
+  render();
+});
+$('dateInput').addEventListener('change', e => {
+  if (!e.target.value) return;
+  const [y, m, d] = e.target.value.split('-').map(Number);
+  const p = localParts(loc.tz, viewMs);
+  live = false;
+  viewMs = localMidnight(loc.tz, y, m, d) + (p.h*60 + p.mi)*60000;
+  render();
+});
+$('nowBtn').addEventListener('click', () => { live = true; render(); });
+
+buildDial();
+render();
+setInterval(() => { if (live) render(); }, 1000);
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+</body>
+</html>
