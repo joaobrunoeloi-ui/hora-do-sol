@@ -1,9 +1,9 @@
-// Hora do Sol 0.4 — service worker
+// Hora do Sol 0.4.1 — service worker
 // Páginas: tenta sempre a rede primeiro (para as atualizações chegarem logo) e usa a cópia guardada sem internet.
 // Imagens e fontes: usa a cópia guardada primeiro.
-const CACHE = 'hora-do-sol-v04-1';
+const CACHE = 'hora-do-sol-v041-1';
 const ASSETS = ['./', './index.html', './manifest.webmanifest?v=5',
-  './icon-192.png', './icon-512.png', './maskable-512.png', './apple-touch-icon.png'];
+  './lua.jpg', './icon-192.png', './icon-512.png', './maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
