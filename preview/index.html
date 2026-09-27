@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hora do Sol</title>
+<meta name="description" content="A hora do Sol e a hora legal, os planetas desta noite e que horas são para o Sol noutros mundos.">
+<link rel="manifest" href="manifest.webmanifest?v=5">
+<meta name="theme-color" content="#03050c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hora do Sol">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--serif:"Cinzel","Trajan Pro",Georgia,serif;--sans:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --bg:#03050c;--ink:#eef1f8;--soft:#9ba5c0;--line:rgba(255,255,255,.1);--card:rgba(12,18,38,.58);--card-strong:rgba(10,15,32,.86);
+  --gold:#f3c969;--gold2:#c98a2e;--accent:#8fb4ff;--lcd:#ff3b30;--lcd-glow:rgba(255,59,48,.75);--nav-h:66px;
+  box-sizing:border-box;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px))}
+body[data-lcd="ambar"]{--lcd:#ffb300;--lcd-glow:rgba(255,179,0,.7)}
+body[data-lcd="verde"]{--lcd:#3dff8f;--lcd-glow:rgba(61,255,143,.6)}
+body[data-lcd="azul"]{--lcd:#4fc8ff;--lcd-glow:rgba(79,200,255,.7)}
+body[data-theme="claro"]{--bg:#e9eef6;--ink:#13203a;--soft:#51607d;--line:rgba(19,32,58,.14);--card:rgba(255,255,255,.78);--card-strong:#fff;--gold:#b7791f;--gold2:#8a560c;--accent:#2f5fc4;color-scheme:light}
+#space{position:fixed;inset:0;width:100%;height:100%;z-index:-2;display:block}
+body[data-theme="claro"] #space,body[data-theme="claro"] .twinkles{display:none}
+body[data-theme="claro"]{background:linear-gradient(180deg,#cfe0f5,#eef2f8 40%,#f5f3ee)}
+.twinkles{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.twinkles i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;box-shadow:0 0 6px 1px rgba(255,255,255,.8);animation:tw 4s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.15}50%{opacity:1}}
+.wrap{max-width:560px;margin:0 auto;padding:0 18px}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+/* Topo */
+.top{display:flex;align-items:center;gap:10px;padding:14px 0 6px}
+.brand{display:flex;align-items:center;gap:9px;font:600 13px var(--serif);letter-spacing:2.5px;color:var(--ink);text-decoration:none;margin-right:auto}
+.brand .sunmark{width:26px;height:26px}
+.brand small{font:500 10px var(--sans);letter-spacing:0;border:1px solid var(--line);padding:2px 6px;border-radius:5px;color:var(--soft)}
+.iconbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:42px;height:42px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font:600 12px var(--sans)}
+.iconbtn svg{width:20px;height:20px}
+.iconbtn.active{border-color:var(--gold);color:var(--gold)}
+
+/* Herói */
+.hero{position:relative;padding:18px 0 8px;overflow:visible}
+.sun-wrap{position:absolute;right:-34px;top:-28px;width:190px;height:190px;pointer-events:none;z-index:0;transition:opacity 1s}
+.sun-halo{position:absolute;inset:-20px;border-radius:50%;background:radial-gradient(circle,rgba(255,190,90,.5) 0 20%,rgba(255,140,50,.22) 36%,rgba(255,110,30,.07) 55%,rgba(255,100,30,0) 70%)}
+.sun-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;mix-blend-mode:screen;
+  -webkit-mask:radial-gradient(circle closest-side,#000 80%,transparent 95%);mask:radial-gradient(circle closest-side,#000 80%,transparent 95%)}
+.moon-wrap{position:absolute;right:18px;top:152px;width:82px;height:82px;z-index:0;pointer-events:none;transition:opacity 1s}
+.moon-halo{position:absolute;inset:-18px;border-radius:50%;background:radial-gradient(circle,rgba(170,200,255,.38) 0 40%,rgba(120,160,255,.14) 56%,rgba(120,160,255,0) 72%)}
+.moon-img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;mix-blend-mode:screen;filter:sepia(.2) hue-rotate(180deg) saturate(1.5) brightness(1.1) contrast(1.05)}
+body[data-spin="on"] .moon-img{animation:spin 60s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.moon-shade{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px)}
+body[data-theme="claro"] .sun-img,body[data-theme="claro"] .moon-img{mix-blend-mode:normal}
+.loc-pill{position:relative;display:inline-flex;align-items:center;gap:8px;padding:7px 14px 7px 11px;border:1px solid var(--line);border-radius:999px;background:var(--card);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);cursor:pointer;font:600 22px var(--serif);color:var(--ink)}
+.loc-pill .pin{width:20px;height:20px;color:var(--gold);flex:none}
+.loc-pill .chev{width:20px;height:20px;color:var(--gold);flex:none}
+.loc-pill:hover,.loc-pill:focus-within{border-color:var(--gold)}
+.loc-pill .loc{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
+.loc-hint{font-size:11px;color:var(--soft);margin:6px 0 2px 4px}
+.credit{margin:18px 0 4px;font-size:11px}
+.hero>*:not(.sun-wrap):not(.moon-wrap){position:relative;z-index:1}
+.place{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.loc option{color:#13203a;background:#fff}
+.date{font-size:13px;color:var(--soft);line-height:1.5}
+.world-title{font:600 26px var(--serif);margin:0}
+.world-site{font-size:13px;color:var(--soft);margin-top:2px}
+.world-back{margin-top:10px}
+.eyebrow{font:600 11px var(--sans);letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
+.hero .eyebrow{margin-top:22px;display:flex;align-items:center;gap:8px}
+.solar{font-family:var(--serif);font-weight:700;font-size:calc(clamp(64px,20vw,112px)*var(--clock-scale,1));line-height:1.02;letter-spacing:1px;white-space:nowrap;margin:6px 0 2px;
+  background:linear-gradient(180deg,#fff6d8 0%,#ffe08f 38%,#f3b64a 70%,#c98a2e 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 22px rgba(243,190,90,.35));font-variant-numeric:lining-nums tabular-nums}
+.solar .sec{font-size:.42em;letter-spacing:0;margin-left:4px;vertical-align:.95em}
+body[data-theme="claro"] .solar{background:linear-gradient(180deg,#c98a2e,#8a560c);-webkit-background-clip:text;background-clip:text;filter:none}
+.lcd-block{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px}
+.lcd{display:inline-flex;align-items:center;padding:10px 14px;border-radius:12px;background:linear-gradient(180deg,#0b0d12,#050608);border:1px solid rgba(255,255,255,.09);box-shadow:inset 0 2px 12px rgba(0,0,0,.9),0 8px 24px rgba(0,0,0,.35)}
+.lcd svg{display:block;height:calc(clamp(36px,10vw,52px)*var(--clock-scale,1));width:auto;overflow:visible}
+.lcd .on{fill:var(--lcd);filter:drop-shadow(0 0 4px var(--lcd-glow))}
+.lcd .off{fill:var(--lcd);opacity:.07}
+.lcd-label{font:600 11px var(--sans);letter-spacing:2px;text-transform:uppercase;color:var(--soft);line-height:1.5}
+.lcd-label b{display:block;color:var(--ink);font-weight:600;letter-spacing:.5px;text-transform:none;font-size:13px}
+.sentence{font-size:16px;line-height:1.55;margin:16px 0 0;max-width:38ch}
+.sentence strong{color:var(--gold);font-weight:600}
+.hero-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.chipbtn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:38px;font:500 13px var(--sans);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.chipbtn svg{width:16px;height:16px}
+.hero-visual{margin-top:16px}
+.hero-visual:empty{display:none}
+.hero-visual svg{display:block;width:min(100%,330px);height:auto}
+
+/* Cartões */
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:14px 0;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.card h2,.section-title{font:600 20px var(--serif);margin:0;letter-spacing:.5px}
+.card .sub{font-size:13px;color:var(--soft);margin:4px 0 0;line-height:1.5}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.pill{font-size:11px;border:1px solid var(--line);padding:4px 9px;border-radius:999px;color:var(--soft);white-space:nowrap}
+.arc{display:block;width:100%;height:auto;margin:10px 0 2px;overflow:visible}
+.arc text{font:10px var(--sans);fill:var(--soft)}
+.pulse{animation:pulse 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{0%,100%{opacity:.18;transform:scale(1)}50%{opacity:.45;transform:scale(1.35)}}
+.events{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.events>div:nth-child(2){text-align:center}.events>div:last-child{text-align:right}
+.events span{display:block;font-size:11px;color:var(--soft)}
+.events b{display:block;font:700 22px var(--serif);margin-top:4px;font-variant-numeric:lining-nums tabular-nums}
+.events .noon b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat b{display:block;font:700 18px var(--serif);font-variant-numeric:lining-nums tabular-nums;line-height:1.25}
+.stat span{display:block;font-size:11.5px;color:var(--soft);line-height:1.4;margin-top:3px}
+.teaser{display:flex;align-items:center;gap:14px;cursor:pointer;width:100%;text-align:left;color:inherit;font:inherit}
+.planet-dot{flex:none;width:34px;height:34px;border-radius:50%;box-shadow:inset -7px -5px 12px rgba(0,0,0,.55),0 0 14px rgba(255,255,255,.08)}
+.teaser .t-main{flex:1;min-width:0}
+.teaser .t-time{font:700 28px var(--serif);color:var(--gold);font-variant-numeric:lining-nums tabular-nums}
+
+/* Explorar */
+.inputs{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:12px}
+.inputs label{display:grid;gap:5px;font-size:11px;color:var(--soft)}
+.inputs input,.field input,.field select{font:14px var(--sans);min-height:42px;border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:10px;color:var(--ink);padding:8px 10px}
+body[data-theme="claro"] .inputs input,body[data-theme="claro"] .field input,body[data-theme="claro"] .field select{background:#fff}
+.btn{min-height:42px;border:0;border-radius:10px;padding:9px 16px;background:var(--gold);color:#1b1305;font:700 13px var(--sans);cursor:pointer}
+input[type=range]{width:100%;margin:18px 0 4px;accent-color:var(--gold)}
+.range-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--soft)}
+.status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--soft)}
+.dot{width:7px;height:7px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84}
+.status.paused .dot{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+#timeNote:empty{display:none}
+.muted{font-size:12px;color:var(--soft);line-height:1.6}
+
+/* Linhas e painéis */
+details.card{padding:0}
+details.card>summary{list-style:none;cursor:pointer;padding:16px 44px 16px 18px;position:relative;font-weight:600;font-size:14px}
+details.card>summary::-webkit-details-marker{display:none}
+details.card>summary::after{content:'+';position:absolute;right:18px;top:12px;font-size:22px;color:var(--gold);font-weight:400}
+details.card[open]>summary::after{content:'−'}
+details.card>summary span{display:block;font-size:12px;font-weight:400;color:var(--soft);margin-top:3px}
+.detail-body{padding:0 18px 18px}
+.rows{margin:0}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.rows .row:first-child{border-top:0}
+.row .k small{display:block;color:var(--soft);font-size:12px;margin-top:2px}
+.row .v{font-variant-numeric:tabular-nums;text-align:right}
+.row.key .k,.row.key .v{font-weight:700}
+.row.past{opacity:.5}
+.row.now{border-top:2px solid var(--gold)}.row.now .k{color:var(--gold);font-weight:600}
+.row.total{border-top:1.5px solid var(--ink);font-weight:700}
+.chart{width:100%;height:auto;display:block;color:var(--ink)}
+.lede{font-size:14px;color:var(--soft);line-height:1.55;margin:0 0 12px}
+.moon-head{display:flex;gap:14px;align-items:center;margin-bottom:8px}
+.moon-head svg{width:84px;height:84px;flex:none}
+.moon-name{font:600 22px var(--serif)}
+.moon-sub{font-size:13px;color:var(--soft);margin-top:3px}
+.dial-wrap{display:flex;justify-content:center}
+.dial{width:min(100%,320px);height:auto}
+
+/* Planetas, céu, sistema, mundos */
+.view{display:none}.view.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.view-head{padding:22px 0 4px}
+.view-head h1{font:600 26px var(--serif);margin:6px 0 0;letter-spacing:.5px}
+.view-head p{font-size:14px;color:var(--soft);margin:6px 0 0;line-height:1.55}
+.pl{display:flex;gap:14px;align-items:flex-start}
+.pl .planet-dot{width:40px;height:40px;margin-top:2px}
+.pl-main{flex:1;min-width:0}
+.pl-name{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.pl-name b{font:600 19px var(--serif)}
+.badge{font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--soft);white-space:nowrap}
+.badge.yes{border-color:rgba(61,220,132,.5);color:#6ff0a5}
+body[data-theme="claro"] .badge.yes{color:#157a3f}
+.pl-line{font-size:13.5px;line-height:1.55;margin-top:5px}
+.pl-line.soft{color:var(--soft)}
+.skymap{display:block;width:100%;max-width:460px;margin:6px auto 0;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--soft);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.orbit-svg{display:block;width:100%;max-width:460px;margin:0 auto;height:auto}
+.worlds{display:grid;gap:10px}
+.world{display:flex;gap:14px;align-items:center;text-align:left;width:100%;border:1px solid var(--line);background:var(--card);border-radius:18px;padding:14px;color:inherit;cursor:pointer;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.world.cur{border-color:var(--gold)}
+.world-main{flex:1;min-width:0}
+.world-main b{font:600 17px var(--serif)}
+.world-main .muted{font-size:12px}
+.world-time{text-align:right;font:700 20px var(--serif);color:var(--gold);font-variant-numeric:lining-nums tabular-nums}
+.world-time small{display:block;font:400 10px var(--sans);color:var(--soft);letter-spacing:.5px}
+.compare{width:100%;border-collapse:collapse;font-size:13px}
+.compare th{font:600 11px var(--sans);letter-spacing:1px;text-transform:uppercase;color:var(--soft);text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+.compare td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:top;font-variant-numeric:tabular-nums}
+.compare td:first-child{font-weight:600;white-space:nowrap}
+.compare tr.me td{color:var(--gold)}
+.table-scroll{overflow-x:auto}
+.routine{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.field{display:grid;gap:5px;font-size:12px;color:var(--soft)}
+.field input,.field select{width:100%}
+.conv .row .v b{font:700 18px var(--serif);color:var(--gold)}
+.fact{font-size:13px;color:var(--soft);font-style:italic;margin-top:4px}
+
+/* Navegação inferior */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card-strong);border-top:1px solid var(--line);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--nav-h)}
+.nav button{background:none;border:0;color:var(--soft);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font:600 10.5px var(--sans);cursor:pointer;padding:0 2px}
+.nav button svg{width:23px;height:23px}
+.nav button[aria-current="page"]{color:var(--gold)}
+
+/* Folhas (definições e mundos) */
+dialog.sheet{border:0;padding:0;background:var(--card-strong);color:var(--ink);width:min(560px,100%);max-width:100%;max-height:88vh;margin:auto auto 0;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.5)}
+dialog.sheet::backdrop{background:rgba(2,4,10,.6)}
+@media(min-width:700px){dialog.sheet{margin:auto;border-radius:20px}}
+.sheet-inner{padding:20px 20px calc(22px + env(safe-area-inset-bottom,0px));overflow:auto;max-height:88vh}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+.sheet-head h2{font:600 22px var(--serif);margin:0}
+.sheet fieldset{border:0;padding:0;margin:18px 0 0}
+.sheet legend{font:600 10px var(--sans);letter-spacing:2px;text-transform:uppercase;color:var(--soft);margin-bottom:9px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:8px 14px;min-height:40px;font:500 13px var(--sans);cursor:pointer}
+.opt[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.opt .sw{width:14px;height:14px;border-radius:50%;flex:none}
+.linkbtn{background:none;border:0;color:var(--soft);font:500 13px var(--sans);text-decoration:underline;cursor:pointer;padding:8px 0;margin-top:18px}
+
+/* Modo relógio */
+.clockmode{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:radial-gradient(ellipse at 70% 20%,rgba(255,180,60,.12),transparent 55%),#02030a;text-align:center;padding:24px}
+.clockmode.on{display:flex}
+.clockmode .solar{font-size:min(26vw,30vh)}
+.clockmode .lcd svg{height:min(13vw,14vh)}
+.clockmode .cm-hint{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom,0px));font-size:12px;color:#7f89a6}
+@media(orientation:landscape) and (max-height:500px){.clockmode{flex-direction:row;gap:40px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-theme="espaco" data-lcd="vermelho" data-spin="on">
+<canvas id="space" aria-hidden="true"></canvas>
+<div class="twinkles" id="twinkles" aria-hidden="true"></div>
+<div class="wrap">
+<header class="top">
+  <a href="#" class="brand" id="brand"><svg class="sunmark" viewBox="0 0 32 32" aria-hidden="true"><defs><radialGradient id="bm" cx="40%" cy="40%"><stop offset="0" stop-color="#fff3c4"/><stop offset="1" stop-color="#e29a2e"/></radialGradient></defs><circle cx="16" cy="16" r="7" fill="url(#bm)"/><g stroke="#f3c969" stroke-width="1.6" stroke-linecap="round"><path d="M16 2.5v4M16 25.5v4M2.5 16h4M25.5 16h4M6.4 6.4l2.8 2.8M22.8 22.8l2.8 2.8M6.4 25.6l2.8-2.8M22.8 9.2l2.8-2.8"/></g></svg>HORA DO SOL <small>0.5</small></a>
+  <button class="iconbtn" id="worldBtn" type="button" aria-label="Mudar de mundo" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 2.6 4.2 5.6 4.2 9s-1.4 6.4-4.2 9c-2.8-2.6-4.2-5.6-4.2-9S9.2 5.6 12 3z"/></svg></button>
+  <button class="iconbtn" id="settingsBtn" type="button" aria-label="Aspeto" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></button>
+</header>
+
+<!-- ===================== HOJE ===================== -->
+<main class="view on" id="view-hoje">
+  <section class="hero">
+    <div class="sun-wrap" id="sunWrap" aria-hidden="true"><div class="sun-halo"></div><img class="sun-img" id="sunImg" src="sol.jpg" alt=""></div>
+    <div class="moon-wrap" id="moonWrap" aria-hidden="true"><div class="moon-halo"></div><img class="moon-img" src="lua.jpg" alt=""><svg class="moon-shade" id="moonShade" viewBox="0 0 100 100"></svg></div>
+    <div id="earthHead">
+      <div class="place"><label class="loc-pill" for="loc"><svg class="pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg><span id="locName">Lisboa</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><select class="loc" id="loc" aria-label="Mudar de local"></select></label></div>
+      <div class="loc-hint">Toca no local para o mudar</div>
+      <div class="date" id="date"></div>
+      <div class="muted" id="note" role="status" hidden></div>
+    </div>
+    <div id="worldHead" hidden>
+      <h1 class="world-title" id="worldTitle"></h1>
+      <div class="world-site" id="worldSite"></div>
+    </div>
+    <div class="hero-visual" id="heroVisual"></div>
+    <div class="eyebrow" id="solarLabel">Hora do Sol</div>
+    <div class="solar" id="solar">--:--</div>
+    <div class="lcd-block">
+      <div class="lcd" id="lcd" aria-label="Hora legal"></div>
+      <div class="lcd-label" id="lcdLabel">Hora legal<b id="lcdPlace">Lisboa</b></div>
+    </div>
+    <p class="sentence" id="sentence"></p>
+    <div class="hero-actions">
+      <button class="chipbtn" id="clockModeBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Modo relógio</button>
+      <button class="chipbtn" id="backEarthBtn" type="button" hidden>← Voltar à Terra</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-top"><div><h2 id="arcTitle">O ritmo do dia</h2><p class="sub" id="arcSub">Do primeiro raio à última luz.</p></div><span class="pill" id="sunState"></span></div>
+    <svg class="arc" id="sunArc" viewBox="0 0 600 280" role="img" aria-label="Percurso do Sol ao longo do dia"></svg>
+    <div class="events"><div><span>↗ Nascer do Sol</span><b id="riseTime"></b></div><div class="noon"><span>☀ Meio-dia solar</span><b id="noonTime"></b></div><div><span>↘ Pôr do Sol</span><b id="setTime"></b></div></div>
+  </section>
+
+  <section class="card"><div class="stats" id="stats"></div></section>
+
+  <section class="card" id="marsTeaserCard"><button class="teaser" id="marsTeaser" type="button"><span class="planet-dot" style="background:radial-gradient(circle at 35% 35%,#f1a27a,#b8492a 60%,#5a1d10)"></span><span class="t-main"><span class="eyebrow">Agora em Marte</span><span class="muted" style="display:block">Cratera Jezero · <span id="teaserSol"></span></span></span><span class="t-time" id="teaserTime">--:--</span></button></section>
+
+  <section class="card" aria-label="Explorar data e hora">
+    <div class="card-top"><div><div class="eyebrow">Explorar o tempo</div><div class="status" id="status" style="margin-top:6px"><span class="dot"></span><span id="statusText">Ao vivo</span></div></div></div>
+    <div class="inputs"><label>Data<input type="date" id="dateInput" min="1900-01-01" max="2100-12-31"></label><label>Hora legal<input type="time" id="timeInput"></label><button class="btn" id="nowBtn" type="button">↺ Agora</button></div>
+    <input type="range" id="slider" min="0" max="1439" step="1" aria-label="Hora do dia">
+    <div class="range-scale"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+    <p id="timeNote" role="status" class="muted"></p>
+  </section>
+
+  <div id="earthDetails">
+    <details class="card"><summary>Porque não coincidem os relógios?<span>Fuso, longitude e órbita</span></summary><div class="detail-body"><p class="lede">A hora legal segue o fuso; a hora do Sol segue o Sol no céu deste lugar.</p><div class="rows" id="explain"></div><h2 style="font:600 18px var(--serif);margin:18px 0 6px">Equação do tempo</h2><p class="lede" id="eotLede"></p><svg class="chart" id="eot" viewBox="0 0 340 140" role="img" aria-label="Equação do tempo"></svg></div></details>
+    <details class="card"><summary>Momentos de luz<span>Crepúsculos, hora dourada e hora azul</span></summary><div class="detail-body"><div class="rows" id="sunRows"></div></div></details>
+    <details class="card"><summary>A Lua<span>Fase, posição e próximos encontros</span></summary><div class="detail-body"><div class="moon-head"><svg id="moonSvg" viewBox="0 0 110 110" role="img" aria-label="Fase da Lua"></svg><div><div class="moon-name" id="moonName"></div><div class="moon-sub" id="moonSub"></div></div></div><div class="rows" id="moonRows"></div></div></details>
+    <details class="card" id="dialPanel"><summary>O relógio de sol<span>Uma leitura pela sombra</span></summary><div class="detail-body"><p class="lede">Mostrador horizontal orientado a norte, com as linhas horárias calculadas para a latitude.</p><div class="dial-wrap"><svg class="dial" id="dial" viewBox="0 0 320 320" role="img" aria-label="Relógio de sol"></svg></div></div></details>
+  </div>
+  <p class="muted credit"><span id="sunCredit">Sol: NASA/SDO</span> · Lua: NASA/LRO, Scientific Visualization Studio.</p>
+  <div id="worldDetails" hidden>
+    <section class="card"><h2>Este mundo</h2><div class="rows" id="worldRows" style="margin-top:8px"></div><p class="fact" id="worldFact"></p></section>
+  </div>
+</main>
+
+<!-- ===================== PLANETAS ===================== -->
+<main class="view" id="view-planetas">
+  <div class="view-head"><div class="eyebrow">Esta noite</div><h1>Planetas visíveis</h1><p id="nightInfo"></p></div>
+  <div id="planetList"></div>
+  <p class="muted">Brilho em magnitude: quanto mais baixo o número, mais brilhante. Abaixo de 6 vê-se a olho nu num céu escuro.</p>
+</main>
+
+<!-- ===================== CÉU ===================== -->
+<main class="view" id="view-ceu">
+  <div class="view-head"><div class="eyebrow">Mapa do céu</div><h1 id="skyTitle">O céu agora</h1><p>Segura o telemóvel por cima da cabeça, com o topo do ecrã virado para norte. O centro é o ponto mesmo por cima de ti.</p></div>
+  <section class="card"><svg class="skymap" id="skymap" viewBox="0 0 400 400" role="img" aria-label="Mapa do céu"></svg>
+  <div class="legend" id="skyLegend"></div></section>
+  <p class="muted">Muda a data e a hora em Hoje → Explorar o tempo para ver o céu noutro momento.</p>
+</main>
+
+<!-- ===================== SISTEMA ===================== -->
+<main class="view" id="view-sistema">
+  <div class="view-head"><div class="eyebrow">Sistema solar hoje</div><h1>Onde está cada planeta</h1><p>Vista de cima do Sistema Solar, com os planetas na posição real desta data. As distâncias estão comprimidas para caberem todos.</p></div>
+  <section class="card"><svg class="orbit-svg" id="orbits" viewBox="0 0 400 400" role="img" aria-label="Posição dos planetas"></svg></section>
+  <section class="card"><h2>Distância à Terra</h2><div class="rows" id="distRows" style="margin-top:6px"></div></section>
+</main>
+
+<!-- ===================== MUNDOS ===================== -->
+<main class="view" id="view-mundos">
+  <div class="view-head"><div class="eyebrow">Mundos</div><h1>E se estivéssemos noutro mundo?</h1><p>Que horas são para o Sol em cada mundo, quanto dura lá um dia e quanto dura um ano. Toca num mundo para o veres em Hoje.</p></div>
+  <div class="worlds" id="worldCards"></div>
+  <section class="card"><h2>Lado a lado</h2><div class="table-scroll"><table class="compare" id="compare"></table></div></section>
+  <section class="card" id="routineCard">
+    <h2>O teu dia noutro planeta</h2>
+    <p class="sub">Indica o teu dia na Terra, em hora legal. A app vê a que hora do Sol isso corresponde aqui e leva o mesmo ritmo solar para outro mundo.</p>
+    <div class="field" style="margin-top:12px"><span>Mundo</span><select id="routineWorld"></select></div>
+    <div class="routine" id="routineInputs"></div>
+    <div class="rows conv" id="routineOut" style="margin-top:14px"></div>
+  </section>
+</main>
+</div>
+
+<nav class="nav" aria-label="Secções"><div class="nav-in">
+  <button type="button" data-view="hoje" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>Hoje</button>
+  <button type="button" data-view="planetas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="5"/><ellipse cx="12" cy="12" rx="10.5" ry="3.6" transform="rotate(-20 12 12)"/></svg>Planetas</button>
+  <button type="button" data-view="ceu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9.5"/><path d="M8 8.5l3 2 4-3 1.5 5-4.5 3" /><circle cx="8" cy="8.5" r=".9" fill="currentColor"/><circle cx="11" cy="10.5" r=".9" fill="currentColor"/><circle cx="15" cy="7.5" r=".9" fill="currentColor"/><circle cx="16.5" cy="12.5" r=".9" fill="currentColor"/><circle cx="12" cy="15.5" r=".9" fill="currentColor"/></svg>Céu</button>
+  <button type="button" data-view="sistema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="2.4" fill="currentColor"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="9.5"/><circle cx="17.5" cy="12" r="1.3" fill="currentColor"/><circle cx="5" cy="7" r="1.5" fill="currentColor"/></svg>Sistema</button>
+  <button type="button" data-view="mundos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 2.6 4.2 5.6 4.2 9s-1.4 6.4-4.2 9c-2.8-2.6-4.2-5.6-4.2-9S9.2 5.6 12 3z"/></svg>Mundos</button>
+</div></nav>
+
+<dialog class="sheet" id="worldSheet" aria-labelledby="worldSheetTitle"><div class="sheet-inner">
+  <div class="sheet-head"><h2 id="worldSheetTitle">Escolhe um mundo</h2><button class="btn" type="button" data-close>Fechar</button></div>
+  <p class="muted">Que horas são para o Sol em cada mundo, neste momento.</p>
+  <div class="worlds" id="worldPicker" style="margin-top:12px"></div>
+</div></dialog>
+
+<dialog class="sheet" id="settings" aria-labelledby="settingsTitle"><div class="sheet-inner">
+  <div class="sheet-head"><h2 id="settingsTitle">Aspeto</h2><button class="btn" type="button" data-close>Fechar</button></div>
+  <div id="settingsBody"></div>
+  <button class="linkbtn" type="button" id="settingsReset">Repor predefinições</button>
+</div></dialog>
+
+<div class="clockmode" id="clockMode" role="dialog" aria-label="Modo relógio">
+  <div><div class="eyebrow" id="cmLabel">Hora do Sol</div><div class="solar" id="cmSolar">--:--</div></div>
+  <div><div class="lcd" id="cmLcd"></div><div class="lcd-label" style="margin-top:10px" id="cmLcdLabel">Hora legal</div></div>
+  <div class="cm-hint">Toca no ecrã para sair</div>
+</div>
+
+<script>
+
+// ---------- Cálculos astronómicos (sem DOM, reutilizáveis em Kotlin) ----------
+const rad = Math.PI/180, deg = 180/Math.PI;
+const mod = (a,b) => ((a % b) + b) % b;
+const jd = ms => ms/86400000 + 2440587.5;
+
+function sun(ms){
+  const d = jd(ms) - 2451545, T = d/36525;
+  const L0 = mod(280.46646 + T*(36000.76983 + 0.0003032*T), 360);
+  const M = 357.52911 + T*(35999.05029 - 0.0001537*T);
+  const e = 0.016708634 - T*(0.000042037 + 0.0000001267*T);
+  const Mr = M*rad;
+  const C = Math.sin(Mr)*(1.914602 - T*(0.004817 + 0.000014*T)) + Math.sin(2*Mr)*(0.019993 - 0.000101*T) + Math.sin(3*Mr)*0.000289;
+  const omega = 125.04 - 1934.136*T;
+  const lambda = L0 + C - 0.00569 - 0.00478*Math.sin(omega*rad);
+  const eps0 = 23 + (26 + (21.448 - T*(46.815 + T*(0.00059 - T*0.001813)))/60)/60;
+  const eps = eps0 + 0.00256*Math.cos(omega*rad);
+  const dec = Math.asin(Math.sin(eps*rad)*Math.sin(lambda*rad));
+  const y = Math.tan(eps*rad/2)**2, L0r = L0*rad;
+  const eot = 4*deg*(y*Math.sin(2*L0r) - 2*e*Math.sin(Mr) + 4*e*y*Math.sin(Mr)*Math.cos(2*L0r) - 0.5*y*y*Math.sin(4*L0r) - 1.25*e*e*Math.sin(2*Mr));
+  return {dec, eot, lambda: mod(lambda,360)};
+}
+
+// Posição do Sol + hora solar verdadeira (minutos desde a meia-noite solar)
+function sunPos(ms, lat, lon){
+  const s = sun(ms);
+  const utcMin = mod(ms/60000, 1440);
+  const tst = mod(utcMin + 4*lon + s.eot, 1440);
+  const Hd = tst/4 - 180, H = Hd*rad, phi = lat*rad;
+  const alt = Math.asin(Math.sin(phi)*Math.sin(s.dec) + Math.cos(phi)*Math.cos(s.dec)*Math.cos(H))*deg;
+  const az = mod(Math.atan2(Math.sin(H), Math.cos(H)*Math.sin(phi) - Math.tan(s.dec)*Math.cos(phi))*deg + 180, 360);
+  return {alt, az, H: Hd, tst, eot: s.eot, lambda: s.lambda};
+}
+
+function moon(ms){
+  const d = jd(ms) - 2451545, T = d/36525;
+  const Lp = 218.3164477 + 481267.88123421*T;
+  const D  = 297.8501921 + 445267.1114034*T;
+  const M  = 357.5291092 + 35999.0502909*T;
+  const Mp = 134.9633964 + 477198.8675055*T;
+  const F  = 93.2720950 + 483202.0175233*T;
+  const s = x => Math.sin(x*rad), c = x => Math.cos(x*rad);
+  const lon = Lp + 6.289*s(Mp) + 1.274*s(2*D-Mp) + 0.658*s(2*D) + 0.214*s(2*Mp) - 0.186*s(M) - 0.114*s(2*F)
+    + 0.059*s(2*D-2*Mp) + 0.057*s(2*D-M-Mp) + 0.053*s(2*D+Mp) + 0.046*s(2*D-M) + 0.041*s(Mp-M) - 0.035*s(D) - 0.030*s(Mp+M);
+  const lat = 5.128*s(F) + 0.281*s(Mp+F) + 0.278*s(Mp-F) + 0.173*s(2*D-F) + 0.055*s(2*D-Mp+F) + 0.046*s(2*D-Mp-F) + 0.033*s(2*D+F);
+  const dist = 385001 - 20905*c(Mp) - 3699*c(2*D-Mp) - 2956*c(2*D) - 570*c(2*Mp) + 246*c(2*Mp-2*D) - 205*c(M-2*D) - 171*c(Mp+2*D) - 152*c(Mp+M-2*D);
+  const eps = (23.4393 - 3.563e-7*d)*rad, l = lon*rad, b = lat*rad;
+  const ra = Math.atan2(Math.sin(l)*Math.cos(eps) - Math.tan(b)*Math.sin(eps), Math.cos(l));
+  const dec = Math.asin(Math.sin(b)*Math.cos(eps) + Math.cos(b)*Math.sin(eps)*Math.sin(l));
+  const i = 180 - D - 6.289*s(Mp) + 2.100*s(M) - 1.274*s(2*D-Mp) - 0.658*s(2*D) - 0.214*s(2*Mp) - 0.110*s(D);
+  return {lon: mod(lon,360), ra, dec, dist, illum: (1 + c(i))/2, par: Math.asin(6378.14/dist)*deg, d, T};
+}
+
+function moonPos(ms, lat, lon){
+  const m = moon(ms);
+  const gmst = mod(280.46061837 + 360.98564736629*m.d + 0.000387933*m.T*m.T, 360);
+  const H = (gmst + lon)*rad - m.ra, phi = lat*rad;
+  const alt = Math.asin(Math.sin(phi)*Math.sin(m.dec) + Math.cos(phi)*Math.cos(m.dec)*Math.cos(H))*deg;
+  const az = mod(Math.atan2(Math.sin(H), Math.cos(H)*Math.sin(phi) - Math.tan(m.dec)*Math.cos(phi))*deg + 180, 360);
+  return {alt, az, h0: 0.7275*m.par - 0.5667, m};
+}
+
+const elongation = ms => mod(moon(ms).lon - sun(ms).lambda, 360);
+
+function refine(f, a, b){
+  let fa = f(a);
+  for (let i = 0; i < 24; i++){
+    const mid = (a+b)/2, fm = f(mid);
+    if ((fm < 0) === (fa < 0)) { a = mid; fa = fm; } else b = mid;
+  }
+  return (a+b)/2;
+}
+
+// Todos os eventos de um dia local [start, end)
+function computeDay(lat, lon, start, end){
+  const step = 5*60000, samples = [];
+  for (let t = start; t <= end; t += step){
+    const mp = moonPos(t, lat, lon);
+    samples.push({t, sun: sunPos(t, lat, lon).alt, moon: mp.alt, mh: mp.alt - mp.h0});
+  }
+  const sunF = level => t => sunPos(t, lat, lon).alt - level;
+  function cross(get, fn){
+    const out = [];
+    for (let i = 1; i < samples.length; i++){
+      const va = get(samples[i-1]), vb = get(samples[i]);
+      if (va < 0 && vb >= 0) out.push({t: refine(fn, samples[i-1].t, samples[i].t), up: true});
+      else if (va >= 0 && vb < 0) out.push({t: refine(fn, samples[i-1].t, samples[i].t), up: false});
+    }
+    return out;
+  }
+  const ev = {};
+  for (const L of [-18, -12, -6, -4, -0.833, 6]){
+    const c = cross(s => s.sun - L, sunF(L));
+    const up = c.find(x => x.up), dn = c.find(x => !x.up);
+    ev[L] = {up: up ? up.t : null, dn: dn ? dn.t : null};
+  }
+  const mc = cross(s => s.mh, t => { const r = moonPos(t, lat, lon); return r.alt - r.h0; });
+  const mUp = mc.find(x => x.up), mDn = mc.find(x => !x.up);
+  let noon = start + 12*3600000;
+  for (let i = 0; i < 4; i++) noon -= sunPos(noon, lat, lon).H*4*60000;
+  const rise = ev[-0.833].up, set = ev[-0.833].dn;
+  let dayLen;
+  if (rise !== null && set !== null && set > rise) dayLen = set - rise;
+  else if (samples.every(s => s.sun > -0.833)) dayLen = end - start;
+  else if (samples.every(s => s.sun <= -0.833)) dayLen = 0;
+  else dayLen = null;
+  return {start, end, samples, ev, noon, noonAlt: sunPos(noon, lat, lon).alt, rise, set, dayLen,
+          moonRise: mUp ? mUp.t : null, moonSet: mDn ? mDn.t : null};
+}
+
+function dayLengthOnly(lat, lon, start, end){
+  const f = t => sunPos(t, lat, lon).alt + 0.833;
+  let rise = null, set = null, prev = f(start), prevT = start, up = prev >= 0, allUp = up, allDn = !up;
+  for (let t = start + 600000; t <= end; t += 600000){
+    const v = f(t);
+    if (v >= 0) allDn = false; else allUp = false;
+    if (prev < 0 && v >= 0 && rise === null) rise = refine(f, prevT, t);
+    if (prev >= 0 && v < 0 && set === null) set = refine(f, prevT, t);
+    prev = v; prevT = t;
+  }
+  if (rise !== null && set !== null && set > rise) return set - rise;
+  if (allUp) return end - start;
+  if (allDn) return 0;
+  return null;
+}
+
+// Próxima lua cheia (target=180) ou nova (target=0)
+function nextPhase(ms, target){
+  const g = t => mod(elongation(t) - target + 180, 360) - 180;
+  const step = 6*3600000;
+  let a = ms, ga = g(a);
+  for (let i = 0; i < 140; i++){
+    const b = a + step, gb = g(b);
+    if (ga < 0 && gb >= 0 && gb - ga < 90) return refine(g, a, b);
+    a = b; ga = gb;
+  }
+  return null;
+}
+
+// ---------- Planetas: elementos orbitais aproximados (JPL, válidos 1800–2050) ----------
+// a, e, I, L, longitude do periélio, nodo ascendente + variações por século
+const PLANET_EL = {
+  mercurio:[0.38709927,0.20563593,7.00497902,252.25032350,77.45779628,48.33076593, 0.00000037,0.00001906,-0.00594749,149472.67411175,0.16047689,-0.12534081],
+  venus:   [0.72333566,0.00677672,3.39467605,181.97909950,131.60246718,76.67984255, 0.00000390,-0.00004107,-0.00078890,58517.81538729,0.00268329,-0.27769418],
+  terra:   [1.00000261,0.01671123,-0.00001531,100.46457166,102.93768193,0.0, 0.00000562,-0.00004392,-0.01294668,35999.37244981,0.32327364,0.0],
+  marte:   [1.52371034,0.09339410,1.84969142,-4.55343205,-23.94362959,49.55953891, 0.00001847,0.00007882,-0.00813131,19140.30268499,0.44441088,-0.29257343],
+  jupiter: [5.20288700,0.04838624,1.30439695,34.39644051,14.72847983,100.47390909, -0.00011607,-0.00013253,-0.00183714,3034.74612775,0.21252668,0.20469106],
+  saturno: [9.53667594,0.05386179,2.48599187,49.95424423,92.59887831,113.66242448, -0.00125060,-0.00050991,0.00193609,1222.49362201,-0.41897216,-0.28867794],
+  urano:   [19.18916464,0.04725744,0.77263783,313.23810451,170.95427630,74.01692503, -0.00196176,-0.00004397,-0.00242939,428.48202785,0.40805281,0.04240589],
+  neptuno: [30.06992276,0.00859048,1.77004347,-55.12002969,44.96476227,131.78422574, 0.00026291,0.00005105,0.00035372,218.45945325,-0.32241464,-0.01262724]
+};
+function helio(key, ms){
+  const el = PLANET_EL[key], T = (jd(ms) - 2451545)/36525;
+  const a = el[0]+el[6]*T, e = el[1]+el[7]*T, I = (el[2]+el[8]*T)*rad, L = el[3]+el[9]*T, w = el[4]+el[10]*T, O = el[5]+el[11]*T;
+  const om = (w - O)*rad, Or = O*rad, M = (mod(L - w + 180, 360) - 180)*rad;
+  let E = M + e*Math.sin(M);
+  for (let i = 0; i < 8; i++) E -= (E - e*Math.sin(E) - M)/(1 - e*Math.cos(E));
+  const xp = a*(Math.cos(E) - e), yp = a*Math.sqrt(1 - e*e)*Math.sin(E);
+  const co = Math.cos(om), so = Math.sin(om), cO = Math.cos(Or), sO = Math.sin(Or), cI = Math.cos(I), sI = Math.sin(I);
+  const x = (co*cO - so*sO*cI)*xp + (-so*cO - co*sO*cI)*yp;
+  const y = (co*sO + so*cO*cI)*xp + (-so*sO + co*cO*cI)*yp;
+  const z = (so*sI)*xp + (co*sI)*yp;
+  return {x, y, z, r: Math.hypot(x, y, z), lon: mod(Math.atan2(y, x)*deg, 360), a};
+}
+const EPS = 23.43928*rad;
+const toEq = v => ({x: v.x, y: v.y*Math.cos(EPS) - v.z*Math.sin(EPS), z: v.y*Math.sin(EPS) + v.z*Math.cos(EPS)});
+const dot = (a, b) => a.x*b.x + a.y*b.y + a.z*b.z;
+const cross = (a, b) => ({x: a.y*b.z - a.z*b.y, y: a.z*b.x - a.x*b.z, z: a.x*b.y - a.y*b.x});
+
+function raDecToAltAz(ra, dec, ms, lat, lon){
+  const d = jd(ms) - 2451545, T = d/36525;
+  const gmst = mod(280.46061837 + 360.98564736629*d + 0.000387933*T*T, 360);
+  const H = (gmst + lon)*rad - ra, phi = lat*rad;
+  const alt = Math.asin(Math.sin(phi)*Math.sin(dec) + Math.cos(phi)*Math.cos(dec)*Math.cos(H))*deg;
+  const az = mod(Math.atan2(Math.sin(H), Math.cos(H)*Math.sin(phi) - Math.tan(dec)*Math.cos(phi))*deg + 180, 360);
+  return {alt, az};
+}
+function planetMag(k, r, D, i){
+  const b = 5*Math.log10(r*D);
+  switch (k){
+    case 'mercurio': return -0.613 + b + 6.328e-2*i - 1.6336e-3*i*i + 3.3644e-5*i**3 - 3.4265e-7*i**4 + 1.6893e-9*i**5 - 3.0334e-12*i**6;
+    case 'venus': return i < 163.7 ? -4.384 + b - 1.044e-3*i + 3.687e-4*i*i - 2.814e-6*i**3 + 8.938e-9*i**4 : 236.05828 + b - 2.81914*i + 8.39034e-3*i*i;
+    case 'marte': return -1.601 + b + 2.267e-2*i - 1.302e-4*i*i;
+    case 'jupiter': return -9.395 + b + 3.7e-4*i + 6.16e-4*i*i;
+    case 'saturno': return -8.95 + b + 0.026*i;
+    case 'urano': return -7.11 + b;
+    default: return -7.00 + b;
+  }
+}
+function planetPos(key, ms, lat, lon){
+  const p = helio(key, ms), E = helio('terra', ms);
+  const g = {x: p.x - E.x, y: p.y - E.y, z: p.z - E.z}, D = Math.hypot(g.x, g.y, g.z), q = toEq(g);
+  const ra = Math.atan2(q.y, q.x), dec = Math.asin(q.z/D);
+  const {alt, az} = raDecToAltAz(ra, dec, ms, lat, lon);
+  const R = E.r, r = p.r, clamp = x => Math.max(-1, Math.min(1, x));
+  const i = Math.acos(clamp((r*r + D*D - R*R)/(2*r*D)))*deg;
+  const elong = Math.acos(clamp((R*R + D*D - r*r)/(2*R*D)))*deg;
+  return {alt, az, D, r, i, elong, mag: planetMag(key, r, D, i)};
+}
+
+// ---------- Mundos: hora solar local noutros corpos ----------
+// Polos e rotação: IAU (Archinal et al.). Marte usa o algoritmo Mars24 da NASA (Allison & McEwen).
+const WORLDS = [
+  {k:'terra', nome:'Terra', site:'', sol:86400, ano:365.256, cor:'#5fa8ff', facto:'O nosso planeta de referência: um dia solar médio de 24 horas.'},
+  {k:'mercurio', nome:'Mercúrio', site:'Bacia Caloris', lat:31.5, lon:162.7, a0:281.0103, d0:61.4155, W0:329.5988, Wd:6.1385108, sol:15201397, ano:87.969, cor:'#b9ab9b', facto:'Um dia solar dura dois anos mercurianos.'},
+  {k:'venus', nome:'Vénus', site:'Maxwell Montes', lat:65.2, lon:3.3, a0:272.76, d0:67.16, W0:160.20, Wd:-1.4813688, sol:10087114, ano:224.701, cor:'#e9cf95', facto:'Gira ao contrário: o Sol nasce a oeste e põe-se a leste.'},
+  {k:'lua', nome:'Lua', site:'Mar da Tranquilidade (Apollo 11)', lat:0.674, lon:23.473, a0:269.9949, d0:66.5392, W0:38.3213, Wd:13.17635815, sol:2551443, ano:365.256, cor:'#d7d2c6', facto:'Um dia lunar dura cerca de um mês: duas semanas de luz, duas de noite.'},
+  {k:'marte', nome:'Marte', site:'Cratera Jezero', lat:18.4447, lon:77.4508, sol:88775.244, ano:686.980, cor:'#e0764a', mars24:true, facto:'Um sol marciano é só 39 minutos mais longo do que o dia terrestre.'},
+  {k:'jupiter', nome:'Júpiter', site:'Topo das nuvens, junto ao equador', lat:0, lon:0, a0:268.056595, d0:64.495303, W0:284.95, Wd:870.5360000, sol:35733, ano:4332.59, cor:'#dcb68b', facto:'O dia mais curto do Sistema Solar: menos de 10 horas.'},
+  {k:'saturno', nome:'Saturno', site:'Topo das nuvens, junto ao equador', lat:0, lon:0, a0:40.589, d0:83.537, W0:38.90, Wd:810.7939024, sol:38018, ano:10759.22, cor:'#e6d29b', facto:'Um ano dura quase 30 anos terrestres.'},
+  {k:'urano', nome:'Urano', site:'Topo das nuvens, junto ao equador', lat:0, lon:0, a0:257.311, d0:-15.175, W0:203.81, Wd:-501.1600928, sol:62064, ano:30685.4, cor:'#9fd8de', facto:'Gira deitado: cada polo tem 42 anos de dia e 42 anos de noite.'},
+  {k:'neptuno', nome:'Neptuno', site:'Topo das nuvens, junto ao equador', lat:0, lon:0, a0:299.36, d0:43.46, W0:249.978, Wd:536.3128492, sol:57996, ano:60189, cor:'#6a8cf0', facto:'Desde que foi descoberto, em 1846, só deu uma volta ao Sol (em 2011).'}
+];
+WORLDS.forEach(w => { if (w.Wd){ const sid = 360/Math.abs(w.Wd); w.sol = Math.round(86400*sid/(1 - Math.sign(w.Wd)*sid/w.ano)); } });
+function marsSun(ms, w){
+  const jdtt = jd(ms) + 69.184/86400, dt = jdtt - 2451545;
+  const M = (19.3871 + 0.52402073*dt)*rad, afms = 270.3871 + 0.524038496*dt;
+  const PB = [[0.0071,2.2353,49.409],[0.0057,2.7543,168.173],[0.0039,1.1177,191.837],[0.0037,15.7866,21.736],[0.0021,2.1354,15.704],[0.0020,2.4694,95.528],[0.0018,32.8493,49.095]];
+  const pbs = PB.reduce((s, [A, t, f]) => s + A*Math.cos((0.985626*dt/t + f)*rad), 0);
+  const nuM = (10.691 + 3e-7*dt)*Math.sin(M) + 0.623*Math.sin(2*M) + 0.050*Math.sin(3*M) + 0.005*Math.sin(4*M) + 0.0005*Math.sin(5*M) + pbs;
+  const Ls = mod(afms + nuM, 360), Lr = Ls*rad;
+  const eot = 2.861*Math.sin(2*Lr) - 0.071*Math.sin(4*Lr) + 0.002*Math.sin(6*Lr) - nuM;
+  const msd = (jdtt - 2451549.5)/1.0274912517 + 44796.0 - 0.0009626;
+  const ltst = mod(24*msd + w.lon/15 + eot/15, 24);
+  const dec = Math.asin(0.42565*Math.sin(Lr))*deg + 0.25*Math.sin(Lr);
+  return {lst: ltst, dec, Ls, sol: Math.floor(msd + w.lon/360) - 52304};
+}
+function worldSun(w, ms){
+  if (w.mars24) return marsSun(ms, w);
+  let s;
+  if (w.k === 'lua'){ const L = sun(ms).lambda*rad; s = toEq({x: Math.cos(L), y: Math.sin(L), z: 0}); }
+  else { const p = toEq(helio(w.k, ms)), n = Math.hypot(p.x, p.y, p.z); s = {x: -p.x/n, y: -p.y/n, z: -p.z/n}; }
+  const a = w.a0*rad, d = w.d0*rad, W = mod(w.W0 + w.Wd*(jd(ms) - 2451545), 360)*rad;
+  const P = {x: Math.cos(d)*Math.cos(a), y: Math.cos(d)*Math.sin(a), z: Math.sin(d)};
+  const Q = {x: -Math.sin(a), y: Math.cos(a), z: 0}, PQ = cross(P, Q);
+  const X = {x: Math.cos(W)*Q.x + Math.sin(W)*PQ.x, y: Math.cos(W)*Q.y + Math.sin(W)*PQ.y, z: Math.cos(W)*Q.z + Math.sin(W)*PQ.z};
+  const Y = cross(P, X);
+  const dec = Math.asin(dot(s, P))*deg, lonS = Math.atan2(dot(s, Y), dot(s, X))*deg;
+  const H = mod(Math.sign(w.Wd)*(w.lon - lonS) + 180, 360) - 180;
+  return {lst: mod(12 + H/15, 24), dec};
+}
+// Altura do Sol e nascer/pôr, em horas locais (0–24) desse mundo
+function worldAlt(lat, dec, lst){
+  const phi = lat*rad, dd = dec*rad, H = (lst - 12)*15*rad;
+  return Math.asin(Math.sin(phi)*Math.sin(dd) + Math.cos(phi)*Math.cos(dd)*Math.cos(H))*deg;
+}
+function worldRiseSet(lat, dec){
+  const x = -Math.tan(lat*rad)*Math.tan(dec*rad);
+  if (x >= 1) return {polar: 'noite'};
+  if (x <= -1) return {polar: 'dia'};
+  const H0 = Math.acos(x)*deg/15;
+  return {rise: 12 - H0, set: 12 + H0, len: 2*H0};
+}
+
+</script>
+<script>
+// ================= Hora do Sol 0.5 — interface =================
+const LOCS = [
+  {id:'lisboa', name:'Lisboa', lat:38.7223, lon:-9.1393, tz:'Europe/Lisbon'},
+  {id:'porto', name:'Porto', lat:41.1579, lon:-8.6291, tz:'Europe/Lisbon'},
+  {id:'braganca', name:'Bragança', lat:41.8061, lon:-6.7567, tz:'Europe/Lisbon'},
+  {id:'faro', name:'Faro', lat:37.0194, lon:-7.9322, tz:'Europe/Lisbon'},
+  {id:'funchal', name:'Funchal', lat:32.6669, lon:-16.9241, tz:'Atlantic/Madeira'},
+  {id:'pdelgada', name:'Ponta Delgada', lat:37.7412, lon:-25.6756, tz:'Atlantic/Azores'},
+  {id:'newyork', name:'Nova Iorque', lat:40.7128, lon:-74.006, tz:'America/New_York'},
+  {id:'tokyo', name:'Tóquio', lat:35.6762, lon:139.6503, tz:'Asia/Tokyo'},
+  {id:'tromso', name:'Tromsø', lat:69.6492, lon:18.9553, tz:'Europe/Oslo'}
+];
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+const MINUS = '\u2212';
+const nf1 = new Intl.NumberFormat('pt-PT', {minimumFractionDigits:1, maximumFractionDigits:1});
+const nf0 = new Intl.NumberFormat('pt-PT', {maximumFractionDigits:0});
+
+// ---------- Datas e fusos ----------
+const partsCache = new Map();
+function localParts(tz, ms){
+  if (!partsCache.has(tz)) partsCache.set(tz, new Intl.DateTimeFormat('en-US', {timeZone:tz, hourCycle:'h23', year:'numeric', month:'numeric', day:'numeric', hour:'numeric', minute:'numeric', second:'numeric'}));
+  const p = {};
+  for (const x of partsCache.get(tz).formatToParts(new Date(ms))) if (x.type !== 'literal') p[x.type] = +x.value;
+  if (p.hour === 24) p.hour = 0;
+  return {y:p.year, m:p.month, d:p.day, h:p.hour, mi:p.minute, s:p.second};
+}
+function tzOffsetMin(tz, ms){ const p = localParts(tz, ms); return Math.round((Date.UTC(p.y, p.m-1, p.d, p.h, p.mi, p.s) - Math.floor(ms/1000)*1000)/60000); }
+function localMidnight(tz, y, m, d){ const base = Date.UTC(y, m-1, d); let t = base; for (let i = 0; i < 3; i++) t = base - tzOffsetMin(tz, t)*60000; return t; }
+const fmtCache = new Map();
+function fmt(ms, tz, opts, key){ const k = tz + key; if (!fmtCache.has(k)) fmtCache.set(k, new Intl.DateTimeFormat('pt-PT', {timeZone:tz, ...opts})); return fmtCache.get(k).format(new Date(ms)); }
+const hm = (ms, tz) => ms === null ? '—' : fmt(ms, tz, {hour:'2-digit', minute:'2-digit', hourCycle:'h23'}, 'hm');
+const longDate = (ms, tz) => fmt(ms, tz, {weekday:'long', day:'numeric', month:'long', year:'numeric'}, 'ld');
+const shortDT = (ms, tz) => fmt(ms, tz, {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit', hourCycle:'h23'}, 'sdt');
+const weekday = (ms, tz) => fmt(ms, tz, {weekday:'long'}, 'wd');
+function clockParts(hours){ const t = Math.floor(mod(hours, 24)*3600 + 1e-6); return [pad(Math.floor(t/3600)), pad(Math.floor(t/60)%60), pad(t%60)]; }
+const hhmm = hours => clockParts(hours).slice(0, 2).join(':');
+function dur(ms){ const m = Math.round(Math.abs(ms)/60000), h = Math.floor(m/60), r = m%60; return h ? (r ? `${h} h ${r} min` : `${h} h`) : `${r} min`; }
+const durMin = min => dur(min*60000);
+function durS(sec){
+  sec = Math.abs(sec);
+  const d = Math.floor(sec/86400), h = Math.floor(sec%86400/3600), m = Math.floor(sec%3600/60), s = Math.round(sec%60);
+  if (d >= 2) return `${nf0.format(d)} dias${h ? ` e ${h} h` : ''}`;
+  const hh = Math.floor(sec/3600), parts = [];
+  if (hh) parts.push(`${hh} h`); if (m) parts.push(`${m} min`); if (s || !parts.length) parts.push(`${s} s`);
+  return parts.join(' ');
+}
+function durLoose(sec){ // para durações longas, em linguagem simples
+  sec = Math.abs(sec);
+  if (sec >= 2*86400) return `${nf1.format(sec/86400)} dias terrestres`;
+  return dur(sec*1000) + ' terrestres';
+}
+const signed = (x, digits=1) => (x < 0 ? MINUS : '+') + (digits ? nf1 : nf0).format(Math.abs(x));
+const COMPASS = ['norte','nor-nordeste','nordeste','és-nordeste','leste','és-sudeste','sudeste','su-sudeste','sul','su-sudoeste','sudoeste','oés-sudoeste','oeste','oés-noroeste','noroeste','nor-noroeste'];
+const COMPASS_S = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+const compass = az => COMPASS_S[Math.round(az/22.5) % 16];
+const compassLong = az => COMPASS[Math.round(az/22.5) % 16];
+const ROMAN = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
+const row = (k, v, cls='') => `<div class="row ${cls}"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+
+// ---------- Preferências ----------
+const PREF_KEY = 'hora-do-sol-prefs-v4';
+const DEFAULT_ROUTINE = [['Despertar','07:00'],['Pequeno-almoço','07:30'],['Almoço','13:00'],['Lanche','16:30'],['Jantar','20:00'],['Deitar','23:30']];
+const DEFAULTS = {theme:'espaco', lcd:'vermelho', size:'normal', seconds:'on', dial:'nenhum', numerals:'roman', spin:'on', routine: DEFAULT_ROUTINE.map(r => r[1]), routineWorld:'marte'};
+let prefs = {...DEFAULTS};
+try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREF_KEY)) || {}); } catch (e) {}
+const savePrefs = () => { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (e) {} };
+const OPTIONS = {
+  theme: {label:'Tema', opts:[['espaco','Espaço','radial-gradient(circle at 60% 40%,#f3c969 0 18%,#1b2350 30%,#03050c)'],['claro','Claro','linear-gradient(135deg,#eef2f8 50%,#b7791f 50%)']]},
+  lcd: {label:'Cor do visor da hora legal', opts:[['vermelho','Vermelho','#ff3b30'],['ambar','Âmbar','#ffb300'],['verde','Verde','#3dff8f'],['azul','Azul','#4fc8ff']]},
+  size: {label:'Tamanho dos números', opts:[['normal','Normal'],['grande','Grande'],['enorme','Muito grande']]},
+  seconds: {label:'Segundos', opts:[['on','Mostrar'],['off','Esconder']]},
+  dial: {label:'Mostrador no topo (na Terra)', opts:[['nenhum','Nenhum'],['sundial','Relógio de sol'],['h24','Mostrador de 24 h']]},
+  numerals: {label:'Números do relógio de sol', opts:[['roman','Romanos'],['arabic','Árabes']]},
+  spin: {label:'Lua a rodar', opts:[['on','Sim'],['off','Não']]}
+};
+const SCALE = {normal:1, grande:1.15, enorme:1.3};
+
+// ---------- Estado ----------
+let loc = LOCS[0], live = true, viewMs = Date.now(), world = null, view = 'hoje';
+let dayKey = null, day = null, yLen = null, phaseKey = null, phases = null, eotYear = null, eotPts = null, slowKey = null;
+
+// ---------- Fundo do espaço ----------
+function drawSpace(){
+  const c = $('space'), dpr = Math.min(2, window.devicePixelRatio || 1), w = innerWidth, h = innerHeight;
+  c.width = w*dpr; c.height = h*dpr;
+  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const bg = g.createLinearGradient(0, 0, 0, h); bg.addColorStop(0, '#02030a'); bg.addColorStop(1, '#070c1f');
+  g.fillStyle = bg; g.fillRect(0, 0, w, h);
+  let seed = 11; const rnd = () => (seed = (seed*16807) % 2147483647)/2147483647;
+  const big = Math.max(w, h);
+  [[.85,.12,.6,'rgba(126,72,196,.20)'],[.1,.5,.55,'rgba(38,112,170,.15)'],[.7,.8,.5,'rgba(196,84,120,.10)'],[.35,.3,.35,'rgba(60,80,170,.10)']].forEach(([x, y, r, col]) => {
+    const rg = g.createRadialGradient(x*w, y*h, 0, x*w, y*h, r*big); rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = rg; g.fillRect(0, 0, w, h);
+  });
+  // Via Láctea: faixa diagonal de poeira e estrelas ténues
+  g.save(); g.translate(w/2, h/2); g.rotate(-0.62);
+  const band = g.createLinearGradient(0, -big*.12, 0, big*.12);
+  band.addColorStop(0, 'rgba(180,190,255,0)'); band.addColorStop(.5, 'rgba(190,200,255,.07)'); band.addColorStop(1, 'rgba(180,190,255,0)');
+  g.fillStyle = band; g.fillRect(-big, -big*.12, big*2, big*.24);
+  for (let i = 0; i < w*h/260; i++){
+    const x = (rnd() - .5)*big*2, y = ((rnd() + rnd() + rnd())/3 - .5)*big*.28;
+    g.fillStyle = `rgba(225,230,255,${(.08 + rnd()*.3).toFixed(2)})`; g.fillRect(x, y, .8, .8);
+  }
+  g.restore();
+  const n = Math.round(w*h/1500);
+  for (let i = 0; i < n; i++){
+    const x = rnd()*w, y = rnd()*h, k = rnd(), r = k < .92 ? .3 + rnd()*.7 : 1 + rnd()*1.1;
+    const tint = rnd(); g.fillStyle = tint < .08 ? '#ffd9a8' : tint < .18 ? '#c3d6ff' : '#ffffff';
+    g.globalAlpha = .3 + rnd()*.7; g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fill();
+    if (r > 1.5){ g.globalAlpha = .12; g.beginPath(); g.arc(x, y, r*3, 0, Math.PI*2); g.fill(); }
+  }
+  g.globalAlpha = 1;
+}
+(function twinkles(){
+  let seed = 5, s = ''; const rnd = () => (seed = (seed*16807) % 2147483647)/2147483647;
+  for (let i = 0; i < 16; i++) s += `<i style="left:${(rnd()*100).toFixed(1)}%;top:${(rnd()*100).toFixed(1)}%;animation-delay:${(rnd()*4).toFixed(1)}s;animation-duration:${(3 + rnd()*4).toFixed(1)}s"></i>`;
+  $('twinkles').innerHTML = s;
+})();
+let spaceTimer; addEventListener('resize', () => { clearTimeout(spaceTimer); spaceTimer = setTimeout(() => { drawSpace(); fitClock(); }, 200); });
+
+// ---------- Visor digital de 7 segmentos (hora legal) ----------
+const SEG = {'0':'abcdef','1':'bc','2':'abdeg','3':'abcdg','4':'bcfg','5':'acdfg','6':'acdefg','7':'abc','8':'abcdefg','9':'abcdfg','-':'g'};
+function segDigit(ch, x, yo, s){
+  const w = 36*s, h = 64*s, t = 7*s, g = 1.1*s, on = SEG[ch] || '';
+  const xl = x + t/2, xr = x + w - t/2, cA = yo + t/2, cG = yo + h/2, cD = yo + h - t/2;
+  const H = yc => `${xl+g},${yc} ${xl+t/2+g},${yc-t/2} ${xr-t/2-g},${yc-t/2} ${xr-g},${yc} ${xr-t/2-g},${yc+t/2} ${xl+t/2+g},${yc+t/2}`;
+  const V = (xc, ya, yb) => `${xc},${ya+g} ${xc+t/2},${ya+t/2+g} ${xc+t/2},${yb-t/2-g} ${xc},${yb-g} ${xc-t/2},${yb-t/2-g} ${xc-t/2},${ya+t/2+g}`;
+  const segs = {a: H(cA), g: H(cG), d: H(cD), f: V(xl, cA, cG), b: V(xr, cA, cG), e: V(xl, cG, cD), c: V(xr, cG, cD)};
+  return Object.entries(segs).map(([k, pts]) => `<polygon class="${on.includes(k) ? 'on' : 'off'}" points="${pts}"/>`).join('');
+}
+function sevenSeg(hh, mm, ss){
+  let x = 0, out = '';
+  const digit = (ch, s = 1) => { out += segDigit(ch, x, 64 - 64*s, s); x += 36*s + 7*s; };
+  const colon = (s = 1) => { const r = 3.6*s; out += `<rect class="on" x="${x+2}" y="${64*.3-r}" width="${2*r}" height="${2*r}" rx="1"/><rect class="on" x="${x+2}" y="${64*.7-r}" width="${2*r}" height="${2*r}" rx="1"/>`; x += 2*r + 10; };
+  digit(hh[0]); digit(hh[1]); colon(); digit(mm[0]); digit(mm[1]);
+  if (ss !== undefined){ x += 4; digit(ss[0], .58); digit(ss[1], .58); }
+  return `<svg viewBox="-2 -2 ${x + 8} 68" aria-hidden="true"><g transform="translate(7 0) skewX(-6)">${out}</g></svg>`;
+}
+
+// ---------- Hora do Sol (algarismos desenhados) ----------
+function solarHTML(hours){
+  const [h, m, s] = clockParts(hours);
+  return prefs.seconds === 'off' ? `${h}:${m}` : `${h}:${m}<span class="sec">:${s}</span>`;
+}
+function fitClock(){
+  for (const el of [$('solar')]){
+    el.style.fontSize = '';
+    if (el.scrollWidth > el.clientWidth + 1){ const cur = parseFloat(getComputedStyle(el).fontSize); el.style.fontSize = (cur*el.clientWidth/el.scrollWidth*.97).toFixed(1) + 'px'; }
+  }
+}
+
+// ---------- Relógio de sol e mostrador de 24 h (opcionais no topo) ----------
+function hourAngleOnDial(lat, Hdeg){ const phi = lat*rad, H = Hdeg*rad; return Math.atan2(Math.sin(phi)*Math.sin(H), Math.cos(H)); }
+function buildDial(){
+  const lat = loc.lat, cx = 160, cy = 160; let lines = '', labels = '';
+  for (let h = 4.5; h <= 19.5; h += 0.5){
+    const th = hourAngleOnDial(lat, (h-12)*15), sx = Math.sin(th), sy = -Math.cos(th), full = h % 1 === 0;
+    if (full && (h < 5 || h > 19)) continue;
+    const r0 = full ? 26 : 104;
+    lines += `<line x1="${(cx+sx*r0).toFixed(1)}" y1="${(cy+sy*r0).toFixed(1)}" x2="${(cx+sx*120).toFixed(1)}" y2="${(cy+sy*120).toFixed(1)}" stroke="#5E574B" stroke-opacity="${full?.75:.45}" stroke-width="${full?1.1:.7}"/>`;
+    if (full) labels += `<text x="${(cx+sx*134).toFixed(1)}" y="${(cy+sy*134+5).toFixed(1)}" text-anchor="middle" font-family="Cinzel, Georgia, serif" font-weight="700" font-size="${(14*(SCALE[prefs.size]||1)).toFixed(1)}" fill="#3a3328">${prefs.numerals === 'arabic' ? h : ROMAN[h%12]}</text>`;
+  }
+  const a1 = 236*rad, a2 = 124*rad, R = 106, la = Math.abs(lat), ld = Math.floor(la), lm = Math.round((la-ld)*60);
+  const motto = `M${(cx+Math.sin(a1)*R).toFixed(1)},${(cy-Math.cos(a1)*R).toFixed(1)} A${R},${R} 0 0 0 ${(cx+Math.sin(a2)*R).toFixed(1)},${(cy-Math.cos(a2)*R).toFixed(1)}`;
+  $('dial').innerHTML = `<defs><radialGradient id="stoneG" cx="45%" cy="38%" r="70%"><stop offset="0" stop-color="#F1ECE1"/><stop offset=".75" stop-color="#E0D8C7"/><stop offset="1" stop-color="#CFC5B1"/></radialGradient>
+    <linearGradient id="brassG" x1="0" x2="1"><stop offset="0" stop-color="#8A6727"/><stop offset=".5" stop-color="#D2AB62"/><stop offset="1" stop-color="#8F6B2B"/></linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.3"/></filter><path id="mottoPath" d="${motto}"/></defs>
+    <circle cx="160" cy="160" r="152" fill="url(#stoneG)" stroke="#A69C88" stroke-width="1.2"/>
+    <circle cx="160" cy="160" r="120" fill="none" stroke="#5E574B" stroke-opacity=".45" stroke-width=".8"/>${lines}${labels}
+    <text font-family="Cinzel, Georgia, serif" font-size="11" fill="#5A5245" letter-spacing="1"><textPath href="#mottoPath" startOffset="50%" text-anchor="middle">Só conto as horas de sol</textPath></text>
+    <text x="160" y="232" text-anchor="middle" font-family="Figtree, sans-serif" font-size="10" fill="#6A6254">${ld}° ${pad(lm)}′ ${lat >= 0 ? 'N' : 'S'}</text>
+    <g id="shadow" filter="url(#soft)"><polygon points="-4.5,5 4.5,5 1.2,-116 -1.2,-116" fill="#1E1B28" fill-opacity=".5"/></g>
+    <polygon points="160,78 163.2,160 156.8,160" fill="url(#brassG)" stroke="#6B4F1B" stroke-width=".6"/><circle cx="160" cy="160" r="4.5" fill="#8F6B2B"/>`;
+}
+function placeVisual(){
+  const hv = $('heroVisual'), wrap = $('dial').closest('.dial-wrap'), body = $('dialPanel').querySelector('.detail-body');
+  if (hv.contains(wrap)) body.appendChild(wrap);
+  hv.innerHTML = '';
+  $('dialPanel').hidden = false;
+  if (world) return;
+  if (prefs.dial === 'sundial'){ hv.appendChild(wrap); $('dialPanel').hidden = true; }
+  else if (prefs.dial === 'h24') hv.innerHTML = '<svg id="dial24" viewBox="0 0 320 320" role="img" aria-label="Mostrador de 24 horas"></svg><div class="legend"><span><i style="background:#f3b64a"></i>Sol</span><span><i style="background:var(--lcd)"></i>Relógio (hora legal)</span></div>';
+}
+function render24(sp, p){
+  const el = $('dial24'); if (!el) return;
+  const cx = 160, cy = 160, R = 124, e = day.ev;
+  const pt = (m, r) => { const a = (mod(m, 1440)/1440)*2*Math.PI + Math.PI; return [cx + Math.sin(a)*r, cy - Math.cos(a)*r]; };
+  const arc = (m1, m2, r) => { const span = mod(m2 - m1, 1440), [x1, y1] = pt(m1, r), [x2, y2] = pt(m2, r); return `M${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${span > 720 ? 1 : 0} 1 ${x2.toFixed(1)},${y2.toFixed(1)}`; };
+  const tst = t => t === null ? null : sunPos(t, loc.lat, loc.lon).tst;
+  let s = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#1a2440" stroke-width="22"/>`;
+  const cu = tst(e[-6].up), cd = tst(e[-6].dn), ru = tst(day.rise), sd = tst(day.set);
+  if (cu !== null && cd !== null) s += `<path d="${arc(cu, cd, R)}" fill="none" stroke="#c98d6c" stroke-width="22"/>`;
+  if (ru !== null && sd !== null) s += `<path d="${arc(ru, sd, R)}" fill="none" stroke="#f3d9a0" stroke-width="22"/>`;
+  for (let h = 0; h < 24; h++){
+    const major = h % 6 === 0, [tx, ty] = pt(h*60, 92);
+    s += `<text x="${tx.toFixed(1)}" y="${(ty + 5).toFixed(1)}" text-anchor="middle" font-family="Figtree, sans-serif" font-weight="${major ? 800 : 600}" font-size="${major ? 15 : 11}" fill="currentColor" opacity="${major ? 1 : .75}">${h}</text>`;
+  }
+  const legalMin = p.h*60 + p.mi + p.s/60, [lx, ly] = pt(legalMin, 72), [hx, hy] = pt(sp.tst, 72), [sx, sy] = pt(sp.tst, R);
+  el.style.color = 'var(--ink)';
+  el.innerHTML = s + `<line x1="${cx}" y1="${cy}" x2="${lx.toFixed(1)}" y2="${ly.toFixed(1)}" stroke="var(--lcd)" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="${cx}" y1="${cy}" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#f3b64a" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="10" fill="${sp.alt > 0 ? '#f4c451' : '#8d93a8'}" stroke="#8a5a0e" stroke-width="1.5"/><circle cx="${cx}" cy="${cy}" r="6" fill="currentColor"/>`;
+}
+
+// ---------- Lua ----------
+function moonSVG(k, waxing, id){
+  const r = 48, cx = 55, cy = 55, rx = Math.abs(1 - 2*k)*r;
+  const s1 = waxing ? 1 : 0, s2 = k >= .5 ? (waxing ? 1 : 0) : (waxing ? 0 : 1);
+  const lit = `M${cx},${cy-r} A${r},${r} 0 0 ${s1} ${cx},${cy+r} A${rx.toFixed(2)},${r} 0 0 ${s2} ${cx},${cy-r}Z`;
+  return `<defs><clipPath id="moonclip-${id}"><path d="${lit}"/></clipPath><radialGradient id="moongrad-${id}" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#FBF7EC"/><stop offset="1" stop-color="#D9D2BF"/></radialGradient></defs>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#1c2238" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+    <g clip-path="url(#moonclip-${id})"><circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#moongrad-${id})"/><circle cx="42" cy="38" r="11" fill="#9E9784" opacity=".28"/><circle cx="66" cy="50" r="8" fill="#9E9784" opacity=".25"/><circle cx="52" cy="72" r="13" fill="#9E9784" opacity=".22"/><circle cx="74" cy="32" r="5" fill="#9E9784" opacity=".25"/></g>`;
+}
+function moonShadeSVG(k, waxing){
+  const r = 50, cx = 50, cy = 50, rx = Math.abs(1 - 2*k)*r;
+  const sD = waxing ? 0 : 1, sT = waxing ? (k < .5 ? 0 : 1) : (k < .5 ? 1 : 0);
+  const dark = `M${cx},${cy-r} A${r},${r} 0 0 ${sD} ${cx},${cy+r} A${rx.toFixed(2)},${r} 0 0 ${sT} ${cx},${cy-r}Z`;
+  return `<defs><filter id="shadeBlur" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="1.6"/></filter></defs><path d="${dark}" fill="#04060e" fill-opacity=".9" filter="url(#shadeBlur)"/>`;
+}
+// Sol de hoje, visto pelo SDO da NASA (se houver internet); senão fica a imagem guardada
+function loadLiveSun(){
+  const im = new Image();
+  im.onload = () => { $('sunImg').src = im.src; $('sunCredit').textContent = 'Sol de hoje: NASA/SDO (AIA 304 Å)'; };
+  im.src = 'https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0304.jpg?d=' + new Date().toISOString().slice(0, 13);
+}
+function phaseName(e){
+  if (e < 7 || e >= 353) return 'Lua nova'; if (e < 83) return 'Lua crescente'; if (e < 97) return 'Quarto crescente'; if (e < 173) return 'Gibosa crescente';
+  if (e < 187) return 'Lua cheia'; if (e < 263) return 'Gibosa minguante'; if (e < 277) return 'Quarto minguante'; return 'Lua minguante';
+}
+const skyFor = alt => alt >= 8 ? 'day' : alt >= -0.833 ? 'low' : alt >= -6 ? 'civil' : alt >= -12 ? 'nautical' : 'night';
+
+// ---------- Arco do Sol (animado) ----------
+function arcSVG(points, cur, ticks, fillId){
+  const path = points.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const [cx, cy] = cur;
+  return `<defs><linearGradient id="${fillId}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f3b64a" stop-opacity=".32"/><stop offset="1" stop-color="#f3b64a" stop-opacity="0"/></linearGradient><clipPath id="${fillId}c"><rect x="0" y="0" width="600" height="160"/></clipPath>
+    <radialGradient id="${fillId}s"><stop offset="0" stop-color="#fffbe6"/><stop offset=".45" stop-color="#ffd76a"/><stop offset="1" stop-color="#f39a2e"/></radialGradient></defs>
+    <path d="${path} L570,250 L30,250Z" fill="url(#${fillId})" clip-path="url(#${fillId}c)"/>
+    <line x1="30" x2="570" y1="160" y2="160" stroke="currentColor" stroke-opacity=".35" stroke-dasharray="3 5"/><text x="30" y="151">HORIZONTE</text>
+    <path d="${path}" fill="none" stroke="#f3b64a" stroke-width="2.6" stroke-linejoin="round"/>
+    <line x1="${cx.toFixed(1)}" x2="${cx.toFixed(1)}" y1="20" y2="250" stroke="currentColor" stroke-opacity=".25" stroke-dasharray="3 5"/>
+    <circle class="pulse" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="20" fill="#ffc857"/>
+    <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="8.5" fill="url(#${fillId}s)" stroke="#fff3c4" stroke-width="1.5"/>${ticks}`;
+}
+const yAlt = alt => Math.max(12, Math.min(250, 160 - alt*1.35));
+
+// ---------- Planetas visíveis ----------
+const PLANETS = [
+  {k:'mercurio', nome:'Mercúrio', cor:'radial-gradient(circle at 35% 35%,#d9cfc4,#8c7f72 60%,#3d352e)', dot:'#c9bdb0'},
+  {k:'venus', nome:'Vénus', cor:'radial-gradient(circle at 35% 35%,#fff4d6,#e3c486 60%,#8a6a2a)', dot:'#f4e1a8'},
+  {k:'marte', nome:'Marte', cor:'radial-gradient(circle at 35% 35%,#f1a27a,#b8492a 60%,#5a1d10)', dot:'#ef7a4f'},
+  {k:'jupiter', nome:'Júpiter', cor:'repeating-linear-gradient(170deg,#e9d2b0 0 5px,#c79a6c 5px 8px,#f1e2c8 8px 12px)', dot:'#e8c79c'},
+  {k:'saturno', nome:'Saturno', cor:'radial-gradient(circle at 35% 35%,#fbecc0,#d6b870 60%,#7b6230)', dot:'#ecd79a'},
+  {k:'urano', nome:'Urano', cor:'radial-gradient(circle at 35% 35%,#d8f6f7,#8fd0d8 60%,#3f7c86)', dot:'#a8e3e8'},
+  {k:'neptuno', nome:'Neptuno', cor:'radial-gradient(circle at 35% 35%,#b9c9ff,#4d6fe0 60%,#1d2d7a)', dot:'#7f9cff'}
+];
+function brightness(mag){
+  if (mag < -3) return 'extremamente brilhante'; if (mag < -1) return 'muito brilhante'; if (mag < 1) return 'brilhante';
+  if (mag < 3) return 'bem visível'; if (mag < 5.5) return 'ténue'; if (mag < 6.5) return 'só com binóculos ou céu muito escuro'; return 'só com telescópio';
+}
+function nightWindow(){
+  const e = day.ev, dawn = e[-6].up, dusk = e[-6].dn;
+  if (dusk === null && dawn === null){
+    return day.samples.every(s => s.sun < -6) ? {start: day.start, end: day.end, polar: 'noite'} : null;
+  }
+  if (dawn !== null && viewMs < dawn) return {start: day.start, end: dawn};
+  const start = dusk ?? day.start;
+  let end = start + 18*3600000;
+  for (let t = start + 600000; t < start + 20*3600000; t += 600000){
+    if (sunPos(t, loc.lat, loc.lon).alt > -6){ end = t; break; }
+  }
+  return {start, end};
+}
+function renderPlanets(){
+  const win = nightWindow(), tz = loc.tz;
+  if (!win){ $('nightInfo').textContent = `Nesta data, em ${loc.name}, o céu não chega a escurecer (Sol sempre acima de −6°).`; $('planetList').innerHTML = ''; return; }
+  $('nightInfo').textContent = `${loc.name} · noite de ${weekday(win.start, tz)} · céu escuro das ${hm(win.start, tz)} às ${hm(win.end, tz)}`;
+  const bodies = [...PLANETS.map(p => ({...p, pos: t => planetPos(p.k, t, loc.lat, loc.lon)})),
+    {k:'lua', nome:'Lua', cor:'radial-gradient(circle at 35% 35%,#fbf7ec,#cfc8b6 60%,#6b6758)', pos: t => { const r = moonPos(t, loc.lat, loc.lon); return {alt: r.alt, az: r.az, mag: -12.7 + 3*(1 - r.m.illum)*2, elong: 180}; }}];
+  const res = bodies.map(b => {
+    let first = null, last = null, best = null;
+    for (let t = win.start; t <= win.end; t += 600000){
+      const p = b.pos(t);
+      if (p.alt >= 7){ if (first === null) first = t; last = t; if (!best || p.alt > best.alt) best = {...p, t}; }
+    }
+    const ref = b.pos(best ? best.t : win.start);
+    return {b, first, last, best, mag: ref.mag, elong: ref.elong};
+  });
+  res.sort((a, b) => (!!b.best - !!a.best) || a.mag - b.mag);
+  $('planetList').innerHTML = res.map(({b, first, last, best, mag, elong}) => {
+    const eye = mag < 6;
+    let lines = '';
+    if (best){
+      const evening = first - win.start < 45*60000 && (win.end - last) > 3*3600000, morning = win.end - last < 45*60000 && (first - win.start) > 3*3600000;
+      const tag = (b.k === 'venus' || b.k === 'mercurio') ? (evening ? ' É a “estrela da tarde”.' : morning ? ' É a “estrela da manhã”.' : '') : '';
+      lines += `<div class="pl-line">Visível das <b>${hm(first, tz)}</b> às <b>${hm(last, tz)}</b>.${tag}</div>`;
+      lines += `<div class="pl-line soft">Melhor às ${hm(best.t, tz)}: a ${nf0.format(best.alt)}° de altura, virado para ${compassLong(best.az)}.</div>`;
+      lines += `<div class="pl-line soft">${b.k === 'lua' ? phaseName(elongation(best.t)) + ', ' + nf0.format(moon(best.t).illum*100) + '% iluminada' : `Brilho: ${brightness(mag)} (magnitude ${signed(mag).replace('+', '')})`}.</div>`;
+    } else {
+      lines += `<div class="pl-line soft">${elong < 15 ? 'Está demasiado perto do Sol para se ver.' : 'Não sobe o suficiente acima do horizonte durante a noite.'}</div>`;
+    }
+    const badge = best ? (eye || b.k === 'lua' ? '<span class="badge yes">Visível</span>' : '<span class="badge">Precisa de telescópio</span>') : '<span class="badge">Não visível</span>';
+    return `<section class="card pl"><span class="planet-dot" style="background:${b.cor}"></span><div class="pl-main"><div class="pl-name"><b>${b.nome}</b>${badge}</div>${lines}</div></section>`;
+  }).join('');
+}
+
+// ---------- Mapa do céu ----------
+const STARS = [['Sírio',101.287,-16.716,-1.46],['Arcturo',213.915,19.182,-.05],['Vega',279.235,38.784,.03],['Capela',79.172,45.998,.08],['Rígel',78.634,-8.202,.13],['Prócion',114.825,5.225,.34],['Betelgeuse',88.793,7.407,.5],['Altair',297.696,8.868,.77],['Aldebarã',68.98,16.509,.85],['Antares',247.352,-26.432,.96],['Espiga',201.298,-11.161,.97],['Pólux',116.329,28.026,1.14],['Fomalhaut',344.413,-29.622,1.16],['Deneb',310.358,45.28,1.25],['Régulo',152.093,11.967,1.35],['Castor',113.65,31.888,1.58],['Bellatrix',81.283,6.35,1.64],['Alnilam',84.053,-1.202,1.69],['Alnitak',85.19,-1.943,1.77],['Mintaka',83.002,-.299,2.23],['Saiph',86.939,-9.67,2.06],['Polar',37.955,89.264,1.98],['Dubhe',165.932,61.751,1.8],['Merak',165.46,56.382,2.37],['Phecda',178.458,53.695,2.44],['Megrez',183.857,57.033,3.3],['Alioth',193.507,55.96,1.77],['Mizar',200.981,54.925,2.23],['Alkaid',206.885,49.313,1.86],['Schedar',10.127,56.537,2.24],['Caph',2.295,59.15,2.28],['Gamma Cas',14.177,60.717,2.15],['Ruchbah',21.454,60.235,2.66],['Segin',28.599,63.67,3.35]];
+const LINES = [['Dubhe','Merak'],['Merak','Phecda'],['Phecda','Megrez'],['Megrez','Dubhe'],['Megrez','Alioth'],['Alioth','Mizar'],['Mizar','Alkaid'],['Betelgeuse','Bellatrix'],['Bellatrix','Mintaka'],['Betelgeuse','Alnitak'],['Mintaka','Alnilam'],['Alnilam','Alnitak'],['Alnitak','Saiph'],['Mintaka','Rígel'],['Caph','Schedar'],['Schedar','Gamma Cas'],['Gamma Cas','Ruchbah'],['Ruchbah','Segin']];
+const TRIANGLE = [['Vega','Deneb'],['Deneb','Altair'],['Altair','Vega']];
+function renderSky(){
+  const t = viewMs, R = 180, C = 200;
+  const proj = (alt, az) => { const r = (90 - alt)/90*R; return [C - r*Math.sin(az*rad), C - r*Math.cos(az*rad)]; };
+  const sp = sunPos(t, loc.lat, loc.lon), dayLight = sp.alt > -6;
+  let s = `<defs><radialGradient id="skyG" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="${dayLight ? '#2c4f86' : '#0d1533'}"/><stop offset="1" stop-color="${dayLight ? '#5f86c0' : '#050816'}"/></radialGradient><clipPath id="skyC"><circle cx="${C}" cy="${C}" r="${R}"/></clipPath></defs>
+    <circle cx="${C}" cy="${C}" r="${R}" fill="url(#skyG)" stroke="rgba(255,255,255,.25)"/>
+    <g clip-path="url(#skyC)" fill="none" stroke="rgba(255,255,255,.1)"><circle cx="${C}" cy="${C}" r="${R*2/3}" stroke-dasharray="3 5"/><circle cx="${C}" cy="${C}" r="${R/3}" stroke-dasharray="3 5"/><line x1="${C}" y1="${C-R}" x2="${C}" y2="${C+R}"/><line x1="${C-R}" y1="${C}" x2="${C+R}" y2="${C}"/></g>`;
+  [['N',0],['NE',45],['E',90],['SE',135],['S',180],['SO',225],['O',270],['NO',315]].forEach(([l, az]) => {
+    const r = R + 12, x = C - r*Math.sin(az*rad), y = C - r*Math.cos(az*rad) + 4;
+    s += `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" font-family="Figtree,sans-serif" font-size="${l.length > 1 ? 10 : 13}" font-weight="700" fill="${l === 'N' ? '#f3c969' : 'currentColor'}">${l}</text>`;
+  });
+  const starPos = {};
+  STARS.forEach(([n, ra, dec, m]) => { const p = raDecToAltAz(ra*rad, dec*rad, t, loc.lat, loc.lon); if (p.alt > -2) starPos[n] = {...p, m}; });
+  const lineSet = (arr, dash) => arr.forEach(([a, b]) => { if (starPos[a] && starPos[b] && starPos[a].alt > 0 && starPos[b].alt > 0){ const [x1, y1] = proj(starPos[a].alt, starPos[a].az), [x2, y2] = proj(starPos[b].alt, starPos[b].az); s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(160,190,255,${dash ? .25 : .38})" stroke-width="1" ${dash ? 'stroke-dasharray="3 4"' : ''}/>`; } });
+  lineSet(LINES); lineSet(TRIANGLE, true);
+  Object.entries(starPos).forEach(([n, p]) => { if (p.alt <= 0) return; const [x, y] = proj(p.alt, p.az), r = Math.max(.9, 3.1 - p.m*.75);
+    s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(2)}" fill="#fff" opacity="${dayLight ? .35 : .95}"/>`;
+    if (p.m < 1.4 || n === 'Polar') s += `<text x="${(x + 5).toFixed(1)}" y="${(y - 4).toFixed(1)}" font-family="Figtree,sans-serif" font-size="9" fill="rgba(210,220,255,.75)">${n}</text>`; });
+  const legend = [];
+  PLANETS.forEach(p => { const q = planetPos(p.k, t, loc.lat, loc.lon); if (q.alt <= 0) return; const [x, y] = proj(q.alt, q.az);
+    s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="${p.dot}" stroke="#fff" stroke-width=".8"/><text x="${(x + 8).toFixed(1)}" y="${(y + 4).toFixed(1)}" font-family="Figtree,sans-serif" font-size="11" font-weight="700" fill="${p.dot}">${p.nome}</text>`;
+    legend.push(`<span><i style="background:${p.dot}"></i>${p.nome} · ${nf0.format(q.alt)}° ${compass(q.az)}</span>`); });
+  const mp = moonPos(t, loc.lat, loc.lon);
+  if (mp.alt > 0){ const [x, y] = proj(mp.alt, mp.az); s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="8" fill="#eee9da" stroke="#fff"/><text x="${(x + 11).toFixed(1)}" y="${(y + 4).toFixed(1)}" font-family="Figtree,sans-serif" font-size="11" font-weight="700" fill="#eee9da">Lua</text>`; legend.push(`<span><i style="background:#eee9da"></i>Lua · ${nf0.format(mp.alt)}° ${compass(mp.az)}</span>`); }
+  if (sp.alt > 0){ const [x, y] = proj(sp.alt, sp.az); s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="18" fill="#ffd76a" opacity=".25"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="#ffd76a" stroke="#fff3c4"/><text x="${(x + 13).toFixed(1)}" y="${(y + 4).toFixed(1)}" font-family="Figtree,sans-serif" font-size="11" font-weight="700" fill="#ffd76a">Sol</text>`; }
+  $('skymap').innerHTML = s; $('skymap').style.color = 'var(--ink)';
+  $('skyLegend').innerHTML = (dayLight ? '<span>É de dia (ou crepúsculo): o Sol ofusca quase tudo, mas os planetas estão lá.</span>' : '') + legend.join('');
+  $('skyTitle').textContent = live ? 'O céu agora' : `O céu às ${hm(t, loc.tz)}`;
+}
+
+// ---------- Sistema solar hoje ----------
+function renderSystem(){
+  const t = viewMs, C = 200, rOf = a => 18 + 27*Math.sqrt(a);
+  const E = helio('terra', t);
+  let s = `<defs><radialGradient id="sunG"><stop offset="0" stop-color="#fffbe6"/><stop offset=".5" stop-color="#ffd76a"/><stop offset="1" stop-color="#f39a2e" stop-opacity="0"/></radialGradient></defs><circle cx="${C}" cy="${C}" r="16" fill="url(#sunG)"/><circle cx="${C}" cy="${C}" r="6" fill="#fff3c4"/>`;
+  const list = [...PLANETS.slice(0, 2), {k:'terra', nome:'Terra', dot:'#5fa8ff'}, ...PLANETS.slice(2)];
+  const rows = [];
+  list.forEach(p => {
+    const h = helio(p.k, t), r = rOf(h.a), x = C + r*Math.cos(h.lon*rad), y = C - r*Math.sin(h.lon*rad);
+    s += `<circle cx="${C}" cy="${C}" r="${r.toFixed(1)}" fill="none" stroke="rgba(255,255,255,.12)" ${p.k === 'terra' ? 'stroke="rgba(95,168,255,.45)"' : ''}/>`;
+    s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${p.k === 'jupiter' || p.k === 'saturno' ? 6 : 4.5}" fill="${p.dot}" stroke="${p.k === 'terra' ? '#fff' : 'none'}"/>`;
+    s += `<text x="${(x + 7).toFixed(1)}" y="${(y - 6).toFixed(1)}" font-family="Figtree,sans-serif" font-size="10" font-weight="600" fill="${p.dot}">${p.nome}</text>`;
+    if (p.k !== 'terra'){ const D = Math.hypot(h.x - E.x, h.y - E.y, h.z - E.z), km = D*149597870.7, lt = km/299792.458;
+      rows.push({D, html: row(`<b style="color:${p.dot}">${p.nome}</b><small>a luz demora ${durS(lt)}</small>`, `${nf0.format(km/1e6)} milhões de km`)}); }
+  });
+  const mk = moon(t).dist; rows.push({D: mk/149597870.7, html: row(`<b>Lua</b><small>a luz demora ${nf1.format(mk/299792.458)} s</small>`, `${nf0.format(mk)} km`)});
+  $('orbits').innerHTML = s; $('orbits').style.color = 'var(--ink)';
+  $('distRows').innerHTML = rows.sort((a, b) => a.D - b.D).map(r => r.html).join('');
+}
+
+// ---------- Mundos ----------
+const worldDot = k => (PLANETS.find(p => p.k === k) || {cor: k === 'terra' ? 'radial-gradient(circle at 35% 35%,#bfe0ff,#3b7fd6 55%,#123a78)' : 'radial-gradient(circle at 35% 35%,#fbf7ec,#cfc8b6 60%,#6b6758)'}).cor;
+function worldNow(w, t){
+  if (w.k === 'terra'){ const sp = sunPos(t, loc.lat, loc.lon); return {lst: sp.tst/60, dec: null}; }
+  return worldSun(w, t);
+}
+function worldCardsHTML(){
+  return WORLDS.map(w => {
+    const n = worldNow(w, viewMs), cur = (world ? world.k : 'terra') === w.k;
+    const site = w.k === 'terra' ? loc.name : w.site;
+    return `<button type="button" class="world${cur ? ' cur' : ''}" data-world="${w.k}"><span class="planet-dot" style="background:${worldDot(w.k)}"></span><span class="world-main"><b>${w.nome}</b><span class="muted" style="display:block">${site}</span></span><span class="world-time">${hhmm(n.lst)}<small>HORA DO SOL</small></span></button>`;
+  }).join('');
+}
+function yearText(days){ return days < 1000 ? `${nf0.format(days)} dias` : `${nf1.format(days/365.25)} anos`; }
+function renderMundos(){
+  $('worldCards').innerHTML = worldCardsHTML();
+  $('compare').innerHTML = `<tr><th>Mundo</th><th>Dia solar</th><th>Ano</th><th>Dias por ano</th></tr>` + WORLDS.map(w =>
+    `<tr class="${(world ? world.k : 'terra') === w.k ? 'me' : ''}"><td>${w.nome}</td><td>${durS(w.sol)}</td><td>${w.k === 'lua' ? '365 dias*' : yearText(w.ano)}</td><td>${(w.ano*86400/w.sol) < 10 ? nf1.format(w.ano*86400/w.sol) : nf0.format(w.ano*86400/w.sol)}</td></tr>`).join('') +
+    `<tr><td colspan="4" class="muted">* A Lua acompanha a Terra à volta do Sol. Mercúrio tem menos de um dia por ano: um dia lá dura dois anos.</td></tr>`;
+  renderRoutine();
+}
+function renderRoutine(){
+  const w = WORLDS.find(x => x.k === prefs.routineWorld) || WORLDS[4], tz = loc.tz;
+  const p = localParts(tz, viewMs), base = localMidnight(tz, p.y, p.m, p.d);
+  const events = DEFAULT_ROUTINE.map(([label], i) => {
+    const [h, m] = (prefs.routine[i] || '00:00').split(':').map(Number);
+    const t = base + (h*60 + m)*60000;
+    return {label, legal: prefs.routine[i], solar: sunPos(t, loc.lat, loc.lon).tst/60};
+  });
+  const wake = events[0], hourSec = w.sol/24, now = worldNow(w, viewMs).lst;
+  let out = `<p class="lede" style="margin:0 0 6px">Na Terra, acordas às <b>${wake.legal}</b> (hora legal), que são <b>${hhmm(wake.solar)}</b> no relógio do Sol de ${loc.name}. Em ${w.nome}, com o mesmo ritmo em relação ao Sol:</p>`;
+  out += events.map((e, i) => {
+    const since = mod(e.solar - wake.solar, 24);
+    const small = i === 0 ? `1 hora de ${w.nome} = ${durS(hourSec)} terrestres` : `${durMin(since*60)} de ${w.nome} depois de acordar = ${durLoose(since*hourSec)}`;
+    return row(`${e.label}<small>${small}</small>`, `<b>${hhmm(e.solar)}</b>`);
+  }).join('');
+  const awake = mod(events[5].solar - wake.solar, 24);
+  const nextWake = viewMs + mod(wake.solar - now, 24)*hourSec*1000;
+  out += `<p class="lede" style="margin:12px 0 0">Ficarias acordado ${durLoose(awake*hourSec)} e cada dia teu duraria ${durS(w.sol)}. O próximo “despertar” em ${w.k === 'terra' ? loc.name : w.site} é ${shortDT(nextWake, tz)} (hora de ${loc.name}).</p>`;
+  $('routineOut').innerHTML = out;
+}
+function buildRoutineInputs(){
+  $('routineWorld').innerHTML = WORLDS.filter(w => w.k !== 'terra').map(w => `<option value="${w.k}">${w.nome}</option>`).join('');
+  $('routineWorld').value = prefs.routineWorld;
+  $('routineInputs').innerHTML = DEFAULT_ROUTINE.map(([label], i) => `<label class="field"><span>${label}</span><input type="time" data-i="${i}" value="${prefs.routine[i]}"></label>`).join('');
+  $('routineWorld').addEventListener('change', e => { prefs.routineWorld = e.target.value; savePrefs(); renderRoutine(); });
+  $('routineInputs').addEventListener('change', e => { const i = e.target.dataset.i; if (i === undefined || !e.target.value) return; prefs.routine[+i] = e.target.value; savePrefs(); renderRoutine(); });
+}
+function setWorld(k){
+  world = k === 'terra' ? null : WORLDS.find(w => w.k === k);
+  placeVisual(); render();
+}
+
+// ---------- Hoje: Terra ----------
+function renderEarthHero(sp, p){
+  $('solarLabel').textContent = 'Hora do Sol';
+  $('solar').innerHTML = solarHTML(sp.tst/60);
+  const off = tzOffsetMin(loc.tz, viewMs), total = off - 4*loc.lon - sp.eot;
+  $('sentence').innerHTML = Math.abs(total) < 1 ? 'Neste momento, o relógio e o Sol estão praticamente certos.' : `O relógio vai <strong>${durMin(total)} ${total > 0 ? 'adiantado' : 'atrasado'}</strong> em relação ao Sol.`;
+  $('date').textContent = longDate(viewMs, loc.tz);
+  // arco em hora legal
+  const x = t => 30 + (t - day.start)/(day.end - day.start)*540;
+  let ticks = '';
+  for (let t = day.start; t <= day.end; t += 3600000){ const q = localParts(loc.tz, t); if (q.h % 6 === 0) ticks += `<text x="${x(t).toFixed(1)}" y="270" text-anchor="middle">${pad(q.h)}:00</text>`; }
+  $('sunArc').innerHTML = arcSVG(day.samples.map(s => [x(s.t), yAlt(s.sun)]), [x(viewMs), yAlt(sp.alt)], ticks, 'ea');
+  $('sunArc').style.color = 'var(--ink)';
+  $('arcTitle').textContent = 'O ritmo do dia'; $('arcSub').textContent = 'Do primeiro raio à última luz · hora legal';
+  $('riseTime').textContent = hm(day.rise, loc.tz); $('setTime').textContent = hm(day.set, loc.tz); $('noonTime').textContent = hm(day.noon, loc.tz);
+  $('sunState').textContent = sp.alt >= -0.833 ? 'Sol acima do horizonte' : 'Sol abaixo do horizonte';
+  renderStats();
+  // relógio de sol
+  const th = hourAngleOnDial(loc.lat, sp.H)*deg, sh = $('shadow');
+  if (sh){ sh.setAttribute('transform', `translate(160 160) rotate(${th.toFixed(2)})`); sh.style.opacity = sp.alt > 0 ? 1 : 0; }
+  if (prefs.dial === 'h24') render24(sp, p);
+  const ms = worldSun(WORLDS[4], viewMs);
+  $('teaserTime').textContent = hhmm(ms.lst); $('teaserSol').textContent = `sol ${nf0.format(ms.sol)} do Perseverance`;
+  renderDetails(sp, p, off, total);
+}
+function renderStats(){
+  const t = viewMs, tz = loc.tz; let s = '';
+  if (day.dayLen === null) s += `<div class="stat"><b>—</b><span>Duração do dia</span></div>`;
+  else { let delta = ''; if (yLen !== null){ const d = Math.round((day.dayLen - yLen)/1000), a = Math.abs(d); delta = `<br>${d < 0 ? MINUS : '+'}${Math.floor(a/60)} min ${pad(a%60)} s face a ontem`; } s += `<div class="stat"><b>${dur(day.dayLen)}</b><span>Duração do dia${delta}</span></div>`; }
+  if (day.rise !== null && day.set !== null){
+    if (t < day.rise) s += `<div class="stat"><b>${dur(day.rise - t)}</b><span>Até o Sol nascer</span></div><div class="stat"><b>${hm(day.rise, tz)}</b><span>Nascer do Sol</span></div>`;
+    else if (t > day.set) s += `<div class="stat"><b>${dur(t - day.set)}</b><span>Desde o pôr do Sol</span></div><div class="stat"><b>${hm(day.set, tz)}</b><span>Pôr do Sol</span></div>`;
+    else s += `<div class="stat"><b>${dur(t - day.rise)}</b><span>Luz já passada</span></div><div class="stat"><b>${dur(day.set - t)}</b><span>Luz que falta</span></div>`;
+  }
+  $('stats').innerHTML = s;
+}
+function renderDetails(sp, p, off, total){
+  const tz = loc.tz, offJan = tzOffsetMin(tz, Date.UTC(p.y,0,15)), offJul = tzOffsetMin(tz, Date.UTC(p.y,6,15));
+  const utcLabel = off === 0 ? 'UTC' : `UTC${off > 0 ? '+' : MINUS}${Math.abs(off)/60}`, lonTerm = -4*loc.lon;
+  $('explain').innerHTML = row(`Fuso horário<small>${utcLabel}${off > Math.min(offJan, offJul) ? ', hora de verão' : ''}</small>`, `${signed(off,0)} min`) +
+    row(`Longitude<small>${nf1.format(Math.abs(loc.lon))}° a ${loc.lon < 0 ? 'oeste' : 'leste'} de Greenwich, 4 min por grau</small>`, `${signed(lonTerm)} min`) +
+    row(`Equação do tempo<small>o Sol verdadeiro vai ${nf1.format(Math.abs(sp.eot))} min ${sp.eot >= 0 ? 'adiantado' : 'atrasado'} face ao Sol médio</small>`, `${signed(-sp.eot)} min`) +
+    row('Diferença total', (total < 0 ? MINUS : '') + durMin(total), 'total');
+  // momentos de luz
+  const e = day.ev, t = viewMs, items = [];
+  const add = (time, label, value, cls='') => { if (time !== null) items.push({time, label, value: value ?? hm(time, tz), cls}); };
+  const range = (a, b) => (a === null || b === null) ? null : `${hm(a,tz)}–${hm(b,tz)}`;
+  add(e[-18].up, 'Início do crepúsculo astronómico'); add(e[-12].up, 'Início do crepúsculo náutico'); add(e[-6].up, 'Primeira luz<small>início do crepúsculo civil</small>');
+  if (range(e[-6].up, e[-4].up)) add(e[-6].up + 1, 'Hora azul', range(e[-6].up, e[-4].up));
+  if (range(e[-4].up, e[6].up)) add(e[-4].up + 2, 'Hora dourada', range(e[-4].up, e[6].up));
+  add(day.rise, 'Nascer do Sol', null, 'key'); add(day.noon, `Meio-dia solar<small>altura máxima de ${nf0.format(day.noonAlt)}°</small>`, null, 'key');
+  if (range(e[6].dn, e[-4].dn)) add(e[6].dn, 'Hora dourada', range(e[6].dn, e[-4].dn));
+  add(day.set, 'Pôr do Sol', null, 'key');
+  if (range(e[-4].dn, e[-6].dn)) add(e[-4].dn + 1, 'Hora azul', range(e[-4].dn, e[-6].dn));
+  add(e[-6].dn, 'Fim do crepúsculo civil'); add(e[-12].dn, 'Fim do crepúsculo náutico'); add(e[-18].dn, 'Fim do crepúsculo astronómico');
+  items.forEach(i => { if (i.time < t) i.cls += ' past'; });
+  if (t >= day.start && t < day.end) items.push({time: t, label: `${live ? 'Agora' : 'Instante escolhido'}<small>Sol a ${nf0.format(sp.alt)}° de altura, azimute ${nf0.format(sp.az)}° (${compass(sp.az)})</small>`, value: hm(t, tz), cls: 'now'});
+  $('sunRows').innerHTML = items.sort((a, b) => a.time - b.time).map(i => row(i.label, i.value, i.cls)).join('');
+  // Lua
+  const m = moon(t), el = elongation(t);
+  $('moonSvg').innerHTML = moonSVG(m.illum, el < 180, 'a');
+  $('moonName').textContent = phaseName(el);
+  $('moonSub').textContent = `${nf0.format(m.illum*100)}% iluminada, ${nf1.format(el/360*29.530588)} dias de idade`;
+  const pk = Math.floor(t/3600000); if (pk !== phaseKey){ phases = {full: nextPhase(t, 180), nw: nextPhase(t, 0)}; phaseKey = pk; }
+  const mp = moonPos(t, loc.lat, loc.lon), r = day.moonRise, s = day.moonSet;
+  let rows = [{time: r ?? Infinity, html: row('Nascer da Lua', r === null ? 'não nasce neste dia' : hm(r, tz))}, {time: s ?? Infinity, html: row('Ocaso da Lua', s === null ? 'não se põe neste dia' : hm(s, tz))}].sort((a, b) => a.time - b.time).map(x => x.html).join('');
+  rows += row(live ? 'Posição agora' : 'Posição no instante escolhido', mp.alt > 0 ? `${nf0.format(mp.alt)}° de altura, ${compass(mp.az)}` : 'abaixo do horizonte');
+  rows += [{t: phases.full, l: 'Próxima lua cheia'}, {t: phases.nw, l: 'Próxima lua nova'}].filter(x => x.t).sort((a, b) => a.t - b.t).map(x => row(x.l, shortDT(x.t, tz))).join('');
+  rows += row('Distância à Terra', `${nf0.format(m.dist)} km`);
+  $('moonRows').innerHTML = rows;
+  // equação do tempo
+  if (eotYear !== p.y){ eotPts = []; for (let i = 0; i < 365; i++) eotPts.push(sun(Date.UTC(p.y, 0, 1+i, 12)).eot); eotYear = p.y; }
+  const W = 340, mid = 62, k = 3.1, X = i => 8 + i/364*(W-16);
+  const doy = Math.floor((viewMs - Date.UTC(p.y,0,1))/86400000), mx = X(Math.max(0, Math.min(364, doy))), my = mid - sp.eot*k;
+  let ml = ''; ['J','F','M','A','M','J','J','A','S','O','N','D'].forEach((mm, i) => { const d = (Date.UTC(p.y,i,15) - Date.UTC(p.y,0,1))/86400000; ml += `<text x="${X(d).toFixed(1)}" y="134" text-anchor="middle" font-size="11" fill="currentColor" opacity=".7">${mm}</text>`; });
+  $('eot').innerHTML = `<line x1="8" x2="${W-8}" y1="${mid}" y2="${mid}" stroke="currentColor" stroke-opacity=".3"/><text x="${W-8}" y="${mid-12*k}" text-anchor="end" font-size="10" fill="currentColor" opacity=".65">Sol adiantado</text><text x="${W-8}" y="${mid+12*k+8}" text-anchor="end" font-size="10" fill="currentColor" opacity=".65">Sol atrasado</text>
+    <path d="${eotPts.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${(mid - v*k).toFixed(1)}`).join('')}" fill="none" stroke="#f3b64a" stroke-width="2.2"/><circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="5.5" fill="#ffd76a" stroke="#8a5a0e"/>${ml}`;
+  $('eotLede').textContent = `Ao longo do ano, o Sol verdadeiro adianta-se ou atrasa-se até cerca de 16 minutos face a um Sol “médio” regular. Hoje vai ${nf1.format(Math.abs(sp.eot))} min ${sp.eot >= 0 ? 'adiantado' : 'atrasado'}.`;
+}
+
+// ---------- Hoje: outro mundo ----------
+function renderWorldHero(){
+  const w = world, ws = worldSun(w, viewMs), rs = worldRiseSet(w.lat, ws.dec), hourSec = w.sol/24;
+  $('worldTitle').textContent = w.nome; $('worldSite').textContent = w.site;
+  $('solarLabel').textContent = `Hora do Sol em ${w.nome}`;
+  $('solar').innerHTML = solarHTML(ws.lst);
+  $('sentence').innerHTML = `Um dia aqui dura <strong>${durS(w.sol)}</strong> terrestres.${w.mars24 ? ` Hoje é o <strong>sol ${nf0.format(ws.sol)}</strong> da missão Perseverance.` : ''}`;
+  const pts = []; for (let h = 0; h <= 24.001; h += .1) pts.push([30 + h/24*540, yAlt(worldAlt(w.lat, ws.dec, h))]);
+  let ticks = ''; for (let h = 0; h <= 24; h += 6) ticks += `<text x="${(30 + h/24*540).toFixed(1)}" y="270" text-anchor="middle">${pad(h)}:00</text>`;
+  const alt = worldAlt(w.lat, ws.dec, ws.lst);
+  $('sunArc').innerHTML = arcSVG(pts, [30 + ws.lst/24*540, yAlt(alt)], ticks, 'wa');
+  $('sunArc').style.color = 'var(--ink)';
+  $('arcTitle').textContent = `O dia em ${w.nome}`; $('arcSub').textContent = `Horas locais: cada “hora” dura ${durS(hourSec)} terrestres`;
+  $('sunState').textContent = alt > 0 ? 'Sol acima do horizonte' : 'Sol abaixo do horizonte';
+  $('noonTime').textContent = '12:00';
+  $('riseTime').textContent = rs.polar ? (rs.polar === 'dia' ? 'sempre dia' : 'sempre noite') : hhmm(rs.rise);
+  $('setTime').textContent = rs.polar ? '—' : hhmm(rs.set);
+  // estatísticas
+  let st = `<div class="stat"><b>${rs.polar ? (rs.polar === 'dia' ? '24 h' : '0 h') : durMin(rs.len*60)}</b><span>Luz do dia, em horas locais</span></div>`;
+  if (!rs.polar){
+    const toSet = alt > 0 ? mod(rs.set - ws.lst, 24) : null, toRise = alt > 0 ? null : mod(rs.rise - ws.lst, 24);
+    st += alt > 0 ? `<div class="stat"><b>${durS(toSet*hourSec)}</b><span>Até o Sol se pôr (tempo terrestre)</span></div>` : `<div class="stat"><b>${durS(toRise*hourSec)}</b><span>Até o Sol nascer (tempo terrestre)</span></div>`;
+  }
+  st += `<div class="stat"><b>${durS(hourSec)}</b><span>Duração de uma hora local</span></div>`;
+  $('stats').innerHTML = st;
+  let rows = row('Duração do dia solar', durS(w.sol)) + row('Duração do ano', `${nf0.format(w.ano)} dias terrestres` + (w.ano > 1000 ? ` (${nf1.format(w.ano/365.25)} anos)` : '')) +
+    row('Dias solares por ano', (w.ano*86400/w.sol) < 10 ? nf1.format(w.ano*86400/w.sol) : nf0.format(w.ano*86400/w.sol)) +
+    row('Altura do Sol agora', `${nf0.format(alt)}°`) + row('Latitude do local', `${nf1.format(Math.abs(w.lat))}° ${w.lat >= 0 ? 'N' : 'S'}`);
+  if (w.mars24){
+    const Ls = ws.Ls, season = Ls < 90 ? 'primavera' : Ls < 180 ? 'verão' : Ls < 270 ? 'outono' : 'inverno';
+    rows += row('Estação no hemisfério norte', `${season} (Ls ${nf0.format(Ls)}°)`);
+  }
+  $('worldRows').innerHTML = rows; $('worldFact').textContent = w.facto;
+}
+
+// ---------- Ciclo principal ----------
+function render(){
+  if (live) viewMs = Date.now();
+  const tz = loc.tz, p = localParts(tz, viewMs), key = `${loc.id}|${p.y}-${p.m}-${p.d}`;
+  if (key !== dayKey){
+    const start = localMidnight(tz, p.y, p.m, p.d), end = localMidnight(tz, p.y, p.m, p.d + 1);
+    day = computeDay(loc.lat, loc.lon, start, end);
+    yLen = dayLengthOnly(loc.lat, loc.lon, localMidnight(tz, p.y, p.m, p.d - 1), start);
+    dayKey = key;
+  }
+  const sp = sunPos(viewMs, loc.lat, loc.lon);
+  document.body.dataset.sky = skyFor(sp.alt);
+  // decoração: Sol e Lua
+  $('sunWrap').style.opacity = sp.alt > 0 ? 1 : sp.alt > -12 ? .75 : .5;
+  const mp = moonPos(viewMs, loc.lat, loc.lon), el = elongation(viewMs), mk = `${Math.round(el)}`;
+  if ($('moonShade').dataset.k !== mk){ $('moonShade').dataset.k = mk; $('moonShade').innerHTML = moonShadeSVG(moon(viewMs).illum, el < 180); }
+  $('moonWrap').style.opacity = mp.alt > 0 ? 1 : .8;
+  // hora legal no visor digital
+  const secs = prefs.seconds !== 'off', lcdHTML = sevenSeg(pad(p.h), pad(p.mi), secs ? pad(p.s) : undefined);
+  $('lcd').innerHTML = lcdHTML; $('lcdPlace').textContent = world ? `na Terra · ${loc.name}` : loc.name;
+  // cabeçalho conforme o mundo
+  $('earthHead').hidden = !!world; $('worldHead').hidden = !world; $('backEarthBtn').hidden = !world;
+  $('earthDetails').hidden = !!world; $('worldDetails').hidden = !world; $('marsTeaserCard').hidden = !!world;
+  $('worldBtn').classList.toggle('active', !!world);
+  if (world) renderWorldHero(); else renderEarthHero(sp, p);
+  fitClock();
+  // explorar
+  $('status').classList.toggle('paused', !live); $('statusText').textContent = live ? 'Ao vivo' : 'A explorar outro momento';
+  if (document.activeElement !== $('timeInput')) $('timeInput').value = pad(p.h) + ':' + pad(p.mi);
+  if (document.activeElement !== $('dateInput')) $('dateInput').value = `${p.y}-${pad(p.m)}-${pad(p.d)}`;
+  if (document.activeElement !== $('slider') || live) $('slider').value = p.h*60 + p.mi;
+  // outras secções (atualizadas a cada minuto ou quando mudam)
+  const sk = `${view}|${key}|${Math.floor(viewMs/60000)}|${world ? world.k : ''}`;
+  if (sk !== slowKey){ slowKey = sk;
+    if (view === 'planetas') renderPlanets();
+    if (view === 'ceu') renderSky();
+    if (view === 'sistema') renderSystem();
+    if (view === 'mundos') renderMundos();
+  } else if (view === 'mundos'){ $('worldCards').innerHTML = worldCardsHTML(); }
+  if ($('worldSheet').open) $('worldPicker').innerHTML = worldCardsHTML();
+  // modo relógio
+  if ($('clockMode').classList.contains('on')){
+    $('cmSolar').innerHTML = $('solar').innerHTML; $('cmLcd').innerHTML = lcdHTML;
+    $('cmLabel').textContent = $('solarLabel').textContent; $('cmLcdLabel').textContent = `Hora legal · ${loc.name}`;
+  }
+}
+
+// ---------- Definições ----------
+function buildSettings(){
+  $('settingsBody').innerHTML = Object.entries(OPTIONS).map(([k, o]) => `<fieldset><legend>${o.label}</legend><div class="opts">${o.opts.map(([v, l, sw]) => `<button type="button" class="opt" data-k="${k}" data-v="${v}">${sw ? `<i class="sw" style="background:${sw}"></i>` : ''}${l}</button>`).join('')}</div></fieldset>`).join('');
+  $('settingsBody').addEventListener('click', e => { const b = e.target.closest('.opt'); if (!b) return; prefs[b.dataset.k] = b.dataset.v; savePrefs(); applyPrefs(); });
+}
+function applyPrefs(){
+  document.body.dataset.theme = prefs.theme; document.body.dataset.lcd = prefs.lcd; document.body.dataset.spin = prefs.spin;
+  document.documentElement.style.setProperty('--clock-scale', SCALE[prefs.size] || 1);
+  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = prefs.theme === 'claro' ? '#e9eef6' : '#03050c';
+  document.querySelectorAll('.opt').forEach(b => b.setAttribute('aria-pressed', String(prefs[b.dataset.k] === b.dataset.v)));
+  buildDial(); placeVisual(); slowKey = null; render();
+}
+
+// ---------- Eventos ----------
+const sel = $('loc');
+sel.innerHTML = LOCS.map(l => `<option value="${l.id}">${l.name}</option>`).join('') + '<option value="gps">A minha localização</option>';
+sel.addEventListener('change', () => {
+  const note = $('note'); note.hidden = true;
+  if (sel.value === 'gps'){
+    const prev = loc.id;
+    if (!navigator.geolocation){ note.textContent = 'Este navegador não permite obter a localização.'; note.hidden = false; sel.value = prev; return; }
+    note.textContent = 'A obter a localização…'; note.hidden = false;
+    navigator.geolocation.getCurrentPosition(pos => {
+      loc = {id:'gps', name:'Aqui', lat: pos.coords.latitude, lon: pos.coords.longitude, tz: Intl.DateTimeFormat().resolvedOptions().timeZone};
+      $('locName').textContent = 'A minha localização';
+      note.textContent = `${nf1.format(Math.abs(loc.lat))}° ${loc.lat >= 0 ? 'N' : 'S'}, ${nf1.format(Math.abs(loc.lon))}° ${loc.lon >= 0 ? 'E' : 'O'}`;
+      dayKey = null; buildDial(); render();
+    }, () => { note.textContent = 'Não foi possível obter a localização. Escolhe uma cidade da lista.'; sel.value = prev; }, {timeout: 10000});
+    return;
+  }
+  loc = LOCS.find(l => l.id === sel.value); $('locName').textContent = loc.name; dayKey = null; buildDial(); render();
+});
+function wallTime(tz, y, m, d, minutes){
+  const start = localMidnight(tz, y, m, d), end = localMidnight(tz, y, m, d + 1), matches = []; let next = null;
+  for (let t = start; t < end; t += 60000){ const q = localParts(tz, t), n = q.h*60 + q.mi; if (n === minutes) matches.push(t); if (n > minutes && next === null) next = t; }
+  $('timeNote').textContent = matches.length > 1 ? 'Esta hora ocorre duas vezes; mostra-se a primeira.' : !matches.length ? 'Esta hora não existe devido à mudança de horário; mostra-se a seguinte.' : '';
+  return matches[0] ?? next ?? end - 60000;
+}
+$('slider').addEventListener('input', e => { const p = localParts(loc.tz, viewMs); live = false; viewMs = wallTime(loc.tz, p.y, p.m, p.d, +e.target.value); render(); });
+$('dateInput').addEventListener('change', e => { if (!e.target.value) return; const [y, m, d] = e.target.value.split('-').map(Number), p = localParts(loc.tz, viewMs); live = false; viewMs = wallTime(loc.tz, y, m, d, p.h*60 + p.mi); render(); });
+$('timeInput').addEventListener('change', e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':').map(Number), p = localParts(loc.tz, viewMs); live = false; viewMs = wallTime(loc.tz, p.y, p.m, p.d, h*60 + m); render(); });
+$('nowBtn').addEventListener('click', () => { live = true; $('timeNote').textContent = ''; render(); });
+document.querySelectorAll('.nav button').forEach(b => b.addEventListener('click', () => {
+  view = b.dataset.view;
+  document.querySelectorAll('.nav button').forEach(x => x.toggleAttribute('aria-current', x === b));
+  document.querySelectorAll('.nav button[aria-current]').forEach(x => x.setAttribute('aria-current', 'page'));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + view));
+  scrollTo({top: 0}); slowKey = null; render();
+}));
+function goView(v){ document.querySelector(`.nav button[data-view="${v}"]`).click(); }
+$('worldBtn').addEventListener('click', () => { $('worldPicker').innerHTML = worldCardsHTML(); $('worldSheet').showModal(); });
+$('settingsBtn').addEventListener('click', () => $('settings').showModal());
+document.querySelectorAll('dialog').forEach(d => { d.addEventListener('click', e => { if (e.target === d || e.target.closest('[data-close]')) d.close(); }); });
+$('worldPicker').addEventListener('click', e => { const b = e.target.closest('[data-world]'); if (!b) return; $('worldSheet').close(); setWorld(b.dataset.world); goView('hoje'); });
+$('worldCards').addEventListener('click', e => { const b = e.target.closest('[data-world]'); if (!b) return; setWorld(b.dataset.world); goView('hoje'); });
+$('marsTeaser').addEventListener('click', () => setWorld('marte'));
+$('backEarthBtn').addEventListener('click', () => setWorld('terra'));
+$('brand').addEventListener('click', e => { e.preventDefault(); setWorld('terra'); goView('hoje'); });
+$('settingsReset').addEventListener('click', () => { prefs = {...DEFAULTS, routine: DEFAULT_ROUTINE.map(r => r[1])}; savePrefs(); buildRoutineInputs(); applyPrefs(); });
+let wakeLock = null;
+$('clockModeBtn').addEventListener('click', async () => {
+  $('clockMode').classList.add('on'); render();
+  try { await document.documentElement.requestFullscreen?.(); } catch (e) {}
+  try { wakeLock = await navigator.wakeLock?.request('screen'); } catch (e) {}
+});
+$('clockMode').addEventListener('click', async () => {
+  $('clockMode').classList.remove('on');
+  try { if (document.fullscreenElement) await document.exitFullscreen(); } catch (e) {}
+  try { await wakeLock?.release(); } catch (e) {} wakeLock = null;
+});
+
+// ---------- Arranque ----------
+drawSpace(); buildSettings(); buildRoutineInputs(); applyPrefs(); loadLiveSun();
+setInterval(() => { if (live) render(); }, 1000);
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js', {updateViaCache: 'none'}).catch(() => {}));
+</script>
+</body>
+</html>
