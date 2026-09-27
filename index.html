@@ -53,13 +53,18 @@ button{font-family:inherit}
 .hero{position:relative;padding:18px 0 8px;overflow:visible}
 .sun-glow{position:absolute;right:-90px;top:-70px;width:260px;height:260px;border-radius:50%;pointer-events:none;
   background:radial-gradient(circle,#fffbe6 0 9%,#ffe08a 16%,rgba(255,190,70,.55) 28%,rgba(255,150,40,.16) 48%,rgba(255,120,30,0) 70%);transition:opacity 1s,transform 1s;z-index:0}
-.moon-deco{position:absolute;left:auto;right:150px;top:4px;width:40px;height:40px;opacity:.9;z-index:0;filter:drop-shadow(0 0 8px rgba(220,225,255,.35))}
+.moon-deco{position:absolute;left:auto;right:150px;top:4px;width:40px;height:40px;z-index:0;border-radius:50%}
+.moon-deco img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;mix-blend-mode:screen}
 body[data-theme="claro"] .sun-glow{opacity:.55}
+body[data-theme="claro"] .moon-deco img{mix-blend-mode:normal}
 .hero>*:not(.sun-glow):not(.moon-deco){position:relative;z-index:1}
 .place{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.loc-wrap{position:relative;display:inline-block}
-.loc-wrap::after{content:"";position:absolute;right:6px;top:50%;width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-70%) rotate(45deg);opacity:.7;pointer-events:none}
-.loc{font:600 26px var(--serif);color:var(--ink);background:transparent;border:0;-webkit-appearance:none;appearance:none;padding:0 28px 0 0;cursor:pointer;max-width:74vw}
+.loc-pill{position:relative;display:inline-flex;align-items:center;gap:8px;padding:7px 14px 7px 11px;border:1px solid var(--line);border-radius:999px;background:var(--card);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);cursor:pointer;font:600 22px var(--serif);color:var(--ink)}
+.loc-pill .pin{width:20px;height:20px;color:var(--gold);flex:none}
+.loc-pill .chev{width:20px;height:20px;color:var(--gold);flex:none}
+.loc-pill:hover,.loc-pill:focus-within{border-color:var(--gold)}
+.loc-pill .loc{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
+.loc-hint{font-size:11px;color:var(--soft);margin:6px 0 0 4px}
 .loc option{color:#13203a;background:#fff}
 .date{font-size:13px;color:var(--soft);line-height:1.5}
 .world-title{font:600 26px var(--serif);margin:0}
@@ -228,7 +233,7 @@ dialog.sheet::backdrop{background:rgba(2,4,10,.6)}
 <div class="twinkles" id="twinkles" aria-hidden="true"></div>
 <div class="wrap">
 <header class="top">
-  <a href="#" class="brand" id="brand"><svg class="sunmark" viewBox="0 0 32 32" aria-hidden="true"><defs><radialGradient id="bm" cx="40%" cy="40%"><stop offset="0" stop-color="#fff3c4"/><stop offset="1" stop-color="#e29a2e"/></radialGradient></defs><circle cx="16" cy="16" r="7" fill="url(#bm)"/><g stroke="#f3c969" stroke-width="1.6" stroke-linecap="round"><path d="M16 2.5v4M16 25.5v4M2.5 16h4M25.5 16h4M6.4 6.4l2.8 2.8M22.8 22.8l2.8 2.8M6.4 25.6l2.8-2.8M22.8 9.2l2.8-2.8"/></g></svg>HORA DO SOL <small>0.4</small></a>
+  <a href="#" class="brand" id="brand"><svg class="sunmark" viewBox="0 0 32 32" aria-hidden="true"><defs><radialGradient id="bm" cx="40%" cy="40%"><stop offset="0" stop-color="#fff3c4"/><stop offset="1" stop-color="#e29a2e"/></radialGradient></defs><circle cx="16" cy="16" r="7" fill="url(#bm)"/><g stroke="#f3c969" stroke-width="1.6" stroke-linecap="round"><path d="M16 2.5v4M16 25.5v4M2.5 16h4M25.5 16h4M6.4 6.4l2.8 2.8M22.8 22.8l2.8 2.8M6.4 25.6l2.8-2.8M22.8 9.2l2.8-2.8"/></g></svg>HORA DO SOL <small>0.4.1</small></a>
   <button class="iconbtn" id="worldBtn" type="button" aria-label="Mudar de mundo" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 2.6 4.2 5.6 4.2 9s-1.4 6.4-4.2 9c-2.8-2.6-4.2-5.6-4.2-9S9.2 5.6 12 3z"/></svg></button>
   <button class="iconbtn" id="settingsBtn" type="button" aria-label="Aspeto" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></button>
 </header>
@@ -237,9 +242,10 @@ dialog.sheet::backdrop{background:rgba(2,4,10,.6)}
 <main class="view on" id="view-hoje">
   <section class="hero">
     <div class="sun-glow" id="sunGlow"></div>
-    <svg class="moon-deco" id="moonDeco" viewBox="0 0 110 110" aria-hidden="true"></svg>
+    <div class="moon-deco" id="moonDeco" aria-hidden="true"><img src="lua.jpg" alt=""></div>
     <div id="earthHead">
-      <div class="place"><div class="loc-wrap"><select class="loc" id="loc" aria-label="Localização"></select></div><div class="date" id="date"></div></div>
+      <div class="place"><label class="loc-pill" for="loc"><svg class="pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg><span id="locName">Lisboa</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><select class="loc" id="loc" aria-label="Mudar de local"></select></label><div class="date" id="date"></div></div>
+      <div class="loc-hint">Toca no local para o mudar</div>
       <div class="muted" id="note" role="status" hidden></div>
     </div>
     <div id="worldHead" hidden>
@@ -609,7 +615,7 @@ function worldRiseSet(lat, dec){
 
 </script>
 <script>
-// ================= Hora do Sol 0.4 — interface =================
+// ================= Hora do Sol 0.4.1 — interface =================
 const LOCS = [
   {id:'lisboa', name:'Lisboa', lat:38.7223, lon:-9.1393, tz:'Europe/Lisbon'},
   {id:'porto', name:'Porto', lat:41.1579, lon:-8.6291, tz:'Europe/Lisbon'},
@@ -1137,10 +1143,8 @@ function render(){
   }
   const sp = sunPos(viewMs, loc.lat, loc.lon);
   document.body.dataset.sky = skyFor(sp.alt);
-  // decoração: Sol e Lua
+  // decoração: Sol
   $('sunGlow').style.opacity = sp.alt > 0 ? 1 : sp.alt > -12 ? .55 : .28;
-  const el = elongation(viewMs), mp = moonPos(viewMs, loc.lat, loc.lon);
-  $('moonDeco').innerHTML = moonSVG(moon(viewMs).illum, el < 180, 'd'); $('moonDeco').style.opacity = mp.alt > 0 ? .95 : .45;
   // hora legal no visor digital
   const secs = prefs.seconds !== 'off', lcdHTML = sevenSeg(pad(p.h), pad(p.mi), secs ? pad(p.s) : undefined);
   $('lcd').innerHTML = lcdHTML; $('lcdPlace').textContent = world ? `na Terra · ${loc.name}` : loc.name;
@@ -1195,12 +1199,13 @@ sel.addEventListener('change', () => {
     note.textContent = 'A obter a localização…'; note.hidden = false;
     navigator.geolocation.getCurrentPosition(pos => {
       loc = {id:'gps', name:'Aqui', lat: pos.coords.latitude, lon: pos.coords.longitude, tz: Intl.DateTimeFormat().resolvedOptions().timeZone};
+      $('locName').textContent = 'A minha localização';
       note.textContent = `${nf1.format(Math.abs(loc.lat))}° ${loc.lat >= 0 ? 'N' : 'S'}, ${nf1.format(Math.abs(loc.lon))}° ${loc.lon >= 0 ? 'E' : 'O'}`;
       dayKey = null; buildDial(); render();
     }, () => { note.textContent = 'Não foi possível obter a localização. Escolhe uma cidade da lista.'; sel.value = prev; }, {timeout: 10000});
     return;
   }
-  loc = LOCS.find(l => l.id === sel.value); dayKey = null; buildDial(); render();
+  loc = LOCS.find(l => l.id === sel.value); $('locName').textContent = loc.name; dayKey = null; buildDial(); render();
 });
 function wallTime(tz, y, m, d, minutes){
   const start = localMidnight(tz, y, m, d), end = localMidnight(tz, y, m, d + 1), matches = []; let next = null;
