@@ -1,8 +1,8 @@
-// Hora do Sol 0.3 — service worker
-// Páginas e estilos: tenta sempre a rede primeiro (para as atualizações chegarem logo) e usa a cópia guardada sem internet.
+// Hora do Sol 0.4 — service worker
+// Páginas: tenta sempre a rede primeiro (para as atualizações chegarem logo) e usa a cópia guardada sem internet.
 // Imagens e fontes: usa a cópia guardada primeiro.
-const CACHE = 'hora-do-sol-v03-1';
-const ASSETS = ['./', './index.html', './v02.css?v=3', './manifest.webmanifest?v=4',
+const CACHE = 'hora-do-sol-v04-1';
+const ASSETS = ['./', './index.html', './manifest.webmanifest?v=5',
   './icon-192.png', './icon-512.png', './maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
