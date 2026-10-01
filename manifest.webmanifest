@@ -1,18 +1,45 @@
 {
-  "id": "./",
-  "name": "Hora do Sol",
-  "short_name": "Hora do Sol",
-  "description": "Relógio de sol, hora legal, Sol e Lua — calculados no próprio telemóvel.",
+  "name": "SunTemp: Solar Time & Typical Temp",
+  "short_name": "SunTemp",
+  "description": "A hora do Sol e a hora legal, os planetas desta noite e que horas são para o Sol noutros mundos.",
   "lang": "pt-PT",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#03050c",
   "theme_color": "#03050c",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Modo relógio",
+      "short_name": "Relógio",
+      "description": "Hora do Sol e hora legal em ecrã inteiro",
+      "url": "./?clock=1",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }

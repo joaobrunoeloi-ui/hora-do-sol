@@ -1,8 +1,8 @@
-// Hora do Sol 0.4.2 — service worker
+// SunTemp 1.3 — service worker
 // Páginas: tenta sempre a rede primeiro (para as atualizações chegarem logo) e usa a cópia guardada sem internet.
 // Imagens e fontes: usa a cópia guardada primeiro.
-const CACHE = 'hora-do-sol-v042-1';
-const ASSETS = ['./', './index.html', './manifest.webmanifest?v=5',
+const CACHE = 'hora-do-sol-v13-1';
+const ASSETS = ['./', './index.html', './manifest.webmanifest?v=6',
   './icon-192.png', './icon-512.png', './maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
