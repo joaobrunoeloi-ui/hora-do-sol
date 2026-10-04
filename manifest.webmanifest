@@ -1,7 +1,7 @@
 {
   "name": "SunTemp: Solar Time & Typical Temp",
   "short_name": "SunTemp",
-  "description": "A hora do Sol e a hora legal, os planetas desta noite e que horas são para o Sol noutros mundos.",
+  "description": "What time is it according to the Sun? Solar time and clock time, typical temperature and UV, the Moon and tonight’s planets — all offline.",
   "lang": "pt-PT",
   "start_url": "./",
   "scope": "./",
