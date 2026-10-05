@@ -315,6 +315,8 @@ body[data-theme="contraste"] nav{background:#000;border-top:1.5px solid #fff}
   body[data-theme="espaco"] .card{border:1.5px solid #fff;background:#000}
 }
 @media (prefers-reduced-motion: reduce){.twinkles,.sun-glow{animation:none!important}}
+
+#slider{touch-action:pan-y}
 </style>
 </head>
 <body data-theme="espaco" data-lcd="vermelho">
@@ -6977,6 +6979,7 @@ function renderWorldHero(){
 // ---------- Ciclo principal ----------
 function render(){
   if (live) viewMs = Date.now();
+  document.body.classList.toggle('exploring', !live);
   const tz = loc.tz, p = localParts(tz, viewMs), key = `${loc.id}|${loc.lat}|${p.y}-${p.m}-${p.d}`;
   if (key !== dayKey){
     const start = localMidnight(tz, p.y, p.m, p.d), end = localMidnight(tz, p.y, p.m, p.d + 1);
@@ -7111,6 +7114,12 @@ document.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click'
   viewMs = wallTime(loc.tz, dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate(), mins); render();
 }));
 $('date').addEventListener('click', () => { $('exploreCard').scrollIntoView({behavior: 'smooth', block: 'center'}); const i = $('dateInput'); try { i.showPicker(); } catch (e) { i.focus(); } });
+// o seletor só muda a hora com um gesto horizontal intencional (evita toques acidentais ao percorrer o ecrã)
+let sliderPtr = null;
+$('slider').addEventListener('pointerdown', e => { sliderPtr = {x: e.clientX, y: e.clientY, armed: false, start: $('slider').value}; });
+$('slider').addEventListener('pointermove', e => { if (sliderPtr && !sliderPtr.armed && Math.abs(e.clientX - sliderPtr.x) > 10 && Math.abs(e.clientX - sliderPtr.x) > Math.abs(e.clientY - sliderPtr.y)) sliderPtr.armed = true; });
+['pointerup', 'pointercancel'].forEach(ev => $('slider').addEventListener(ev, () => { setTimeout(() => { sliderPtr = null; }, 0); }));
+$('slider').addEventListener('input', e => { if (sliderPtr && !sliderPtr.armed){ e.target.value = sliderPtr.start; e.stopImmediatePropagation(); } }, true);
 $('slider').addEventListener('input', e => { const p = localParts(loc.tz, viewMs); live = false; viewMs = wallTime(loc.tz, p.y, p.m, p.d, +e.target.value); render(); });
 $('dateInput').addEventListener('change', e => { if (!e.target.value) return; const [y, m, d] = e.target.value.split('-').map(Number), p = localParts(loc.tz, viewMs); live = false; viewMs = wallTime(loc.tz, y, m, d, p.h*60 + p.mi); render(); });
 $('timeInput').addEventListener('change', e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':').map(Number), p = localParts(loc.tz, viewMs); live = false; viewMs = wallTime(loc.tz, p.y, p.m, p.d, h*60 + m); render(); });
@@ -7118,6 +7127,10 @@ function goLive(){ live = true; $('timeNote').textContent = ''; render(); }
 $('nowBtn').addEventListener('click', goLive);
 $('exploreNow').addEventListener('click', goLive);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !live) goLive(); });
+// ao reabrir a app (Android ou navegador), volta sempre à hora atual
+window.goLiveOnResume = () => { if (!live) goLive(); else render(); };
+window.addEventListener('pageshow', () => { if (!live) goLive(); });
+window.addEventListener('focus', () => { if (!live) goLive(); });
 $('routineWorld').addEventListener('change', e => { prefs.routineWorld = e.target.value; savePrefs(); renderRoutine(); });
 $('routineInputs').addEventListener('change', e => { const i = e.target.dataset.i; if (i === undefined || !e.target.value) return; prefs.routine[+i] = e.target.value; savePrefs(); renderRoutine(); });
 document.querySelectorAll('.nav button').forEach(b => b.addEventListener('click', () => {
